@@ -5,7 +5,7 @@ use staking::staking::errors::Error as StakingError;
 use starkware_utils::errors::{Describable, ErrorDisplay};
 
 #[derive(Drop)]
-pub(crate) enum GenericError {
+pub enum GenericError {
     Erc20Error: Erc20Error,
     StakingError: StakingError,
     PoolError: PoolError,
@@ -63,7 +63,7 @@ impl DescribableGenericError of Describable<GenericError> {
 }
 
 #[derive(Drop)]
-pub(crate) enum Erc20Error {
+pub enum Erc20Error {
     INSUFFICIENT_BALANCE,
     INSUFFICIENT_ALLOWANCE,
 }

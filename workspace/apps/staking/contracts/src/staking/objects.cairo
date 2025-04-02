@@ -14,7 +14,7 @@ const SECONDS_IN_YEAR: u64 = 365 * 24 * 60 * 60;
 const STARTING_EPOCH: Epoch = 0;
 
 #[derive(Hash, Drop, Serde, Copy, starknet::Store)]
-pub(crate) struct UndelegateIntentKey {
+pub struct UndelegateIntentKey {
     pub pool_contract: ContractAddress,
     // The identifier is generally the pool member address, but it can be any unique identifier,
     // depending on the logic of the pool contract.
@@ -22,12 +22,12 @@ pub(crate) struct UndelegateIntentKey {
 }
 
 #[derive(Debug, PartialEq, Drop, Serde, Copy, starknet::Store)]
-pub(crate) struct UndelegateIntentValue {
+pub struct UndelegateIntentValue {
     pub unpool_time: Timestamp,
     pub amount: Amount,
 }
 
-pub(crate) impl UndelegateIntentValueZero of core::num::traits::Zero<UndelegateIntentValue> {
+pub impl UndelegateIntentValueZero of core::num::traits::Zero<UndelegateIntentValue> {
     fn zero() -> UndelegateIntentValue {
         UndelegateIntentValue { unpool_time: Zero::zero(), amount: Zero::zero() }
     }
@@ -42,7 +42,7 @@ pub(crate) impl UndelegateIntentValueZero of core::num::traits::Zero<UndelegateI
 }
 
 #[generate_trait]
-pub(crate) impl UndelegateIntentValueImpl of UndelegateIntentValueTrait {
+pub impl UndelegateIntentValueImpl of UndelegateIntentValueTrait {
     fn is_valid(self: @UndelegateIntentValue) -> bool {
         // The value is valid if and only if unpool_time and amount are both zero or both non-zero.
         self.unpool_time.is_zero() == self.amount.is_zero()
@@ -54,7 +54,7 @@ pub(crate) impl UndelegateIntentValueImpl of UndelegateIntentValueTrait {
 }
 
 #[derive(Debug, Hash, Drop, Serde, Copy, PartialEq, starknet::Store)]
-pub(crate) struct EpochInfo {
+pub struct EpochInfo {
     // The duration of the epoch in seconds.
     epoch_duration: u32,
     // The length of the epoch in blocks.
@@ -70,7 +70,7 @@ pub(crate) struct EpochInfo {
 }
 
 #[generate_trait]
-pub(crate) impl EpochInfoImpl of EpochInfoTrait {
+pub impl EpochInfoImpl of EpochInfoTrait {
     /// Create a new epoch info object. this should happen once, and is initializing the epoch info
     /// to the starting epoch.
     fn new(epoch_duration: u32, epoch_length: u32, starting_block: u64) -> EpochInfo {
@@ -219,21 +219,21 @@ struct InternalStakerInfo {
 
 // **Note**: This struct should be made private in the next version of Internal Staker Info.
 #[derive(Debug, PartialEq, Drop, Serde, Copy, starknet::Store)]
-pub(crate) struct InternalStakerInfoV1 {
-    pub(crate) reward_address: ContractAddress,
-    pub(crate) operational_address: ContractAddress,
-    pub(crate) unstake_time: Option<Timestamp>,
+pub struct InternalStakerInfoV1 {
+    pub reward_address: ContractAddress,
+    pub operational_address: ContractAddress,
+    pub unstake_time: Option<Timestamp>,
     // **Note**: This field was used in V0 and no longer in use in the new rewards mechanism
     // introduced in V1. Still in use in `pool_migration`.
-    pub(crate) _deprecated_index_V0: Index,
-    pub(crate) unclaimed_rewards_own: Amount,
-    pub(crate) pool_info: Option<StakerPoolInfo>,
-    pub(crate) commission_commitment: Option<CommissionCommitment>,
+    pub _deprecated_index_V0: Index,
+    pub unclaimed_rewards_own: Amount,
+    pub pool_info: Option<StakerPoolInfo>,
+    pub commission_commitment: Option<CommissionCommitment>,
 }
 
 // **Note**: This struct should be updated in the next version of Internal Staker Info.
 #[derive(Debug, PartialEq, Drop, Copy, starknet::Store)]
-pub(crate) enum VersionedInternalStakerInfo {
+pub enum VersionedInternalStakerInfo {
     #[default]
     None,
     V0: InternalStakerInfo,
@@ -242,7 +242,7 @@ pub(crate) enum VersionedInternalStakerInfo {
 
 // **Note**: This trait must be reimplemented in the next version of Internal Staker Info.
 #[generate_trait]
-pub(crate) impl InternalStakerInfoConvert of InternalStakerInfoConvertTrait {
+pub impl InternalStakerInfoConvert of InternalStakerInfoConvertTrait {
     fn convert(
         self: InternalStakerInfo, prev_class_hash: ClassHash, staker_address: ContractAddress,
     ) -> (InternalStakerInfoV1, Amount) {
@@ -265,7 +265,7 @@ pub(crate) impl InternalStakerInfoConvert of InternalStakerInfoConvertTrait {
 
 // **Note**: This trait must be reimplemented in the next version of Internal Staker Info.
 #[generate_trait]
-pub(crate) impl VersionedInternalStakerInfoImpl of VersionedInternalStakerInfoTrait {
+pub impl VersionedInternalStakerInfoImpl of VersionedInternalStakerInfoTrait {
     fn wrap_latest(value: InternalStakerInfoV1) -> VersionedInternalStakerInfo nopanic {
         VersionedInternalStakerInfo::V1(value)
     }
@@ -297,7 +297,7 @@ pub(crate) impl VersionedInternalStakerInfoImpl of VersionedInternalStakerInfoTr
 }
 
 #[generate_trait]
-pub(crate) impl InternalStakerInfoLatestImpl of InternalStakerInfoLatestTrait {
+pub impl InternalStakerInfoLatestImpl of InternalStakerInfoLatestTrait {
     fn compute_unpool_time(
         self: @InternalStakerInfoLatest, exit_wait_window: TimeDelta,
     ) -> Timestamp {
@@ -327,7 +327,7 @@ impl InternalStakerInfoLatestIntoStakerInfo of Into<InternalStakerInfoLatest, St
 }
 
 #[cfg(test)]
-pub(crate) impl StakerInfoIntoInternalStakerInfoV1 of Into<StakerInfo, InternalStakerInfoV1> {
+pub impl StakerInfoIntoInternalStakerInfoV1 of Into<StakerInfo, InternalStakerInfoV1> {
     fn into(self: StakerInfo) -> InternalStakerInfoV1 {
         InternalStakerInfoV1 {
             reward_address: self.reward_address,
@@ -345,7 +345,7 @@ pub(crate) impl StakerInfoIntoInternalStakerInfoV1 of Into<StakerInfo, InternalS
 
 #[cfg(test)]
 #[generate_trait]
-pub(crate) impl VersionedInternalStakerInfoTestImpl of VersionedInternalStakerInfoTestTrait {
+pub impl VersionedInternalStakerInfoTestImpl of VersionedInternalStakerInfoTestTrait {
     fn new_v0(
         reward_address: ContractAddress,
         operational_address: ContractAddress,
@@ -371,7 +371,7 @@ pub(crate) impl VersionedInternalStakerInfoTestImpl of VersionedInternalStakerIn
 
 #[cfg(test)]
 #[generate_trait]
-pub(crate) impl InternalStakerInfoTestImpl of InternalStakerInfoTestTrait {
+pub impl InternalStakerInfoTestImpl of InternalStakerInfoTestTrait {
     fn new(
         reward_address: ContractAddress,
         operational_address: ContractAddress,

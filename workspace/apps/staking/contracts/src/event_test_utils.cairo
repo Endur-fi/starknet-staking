@@ -11,19 +11,19 @@ use starknet::ContractAddress;
 use starkware_utils::types::time::time::{TimeDelta, Timestamp};
 use starkware_utils_testing::test_utils::assert_expected_event_emitted;
 
-pub(crate) fn assert_number_of_events(actual: u32, expected: u32, message: ByteArray) {
+pub fn assert_number_of_events(actual: u32, expected: u32, message: ByteArray) {
     assert!(
         actual == expected,
         "{actual} events were emitted instead of {expected}. Context: {message}",
     );
 }
 
-pub(crate) fn panic_with_event_details(expected_emitted_by: @ContractAddress, details: ByteArray) {
+pub fn panic_with_event_details(expected_emitted_by: @ContractAddress, details: ByteArray) {
     let start = format!("Could not match expected event from address {:?}", *expected_emitted_by);
     panic!("{}: {}", start, details);
 }
 
-pub(crate) fn assert_staker_exit_intent_event(
+pub fn assert_staker_exit_intent_event(
     spied_event: @(ContractAddress, Event),
     staker_address: ContractAddress,
     exit_timestamp: Timestamp,
@@ -38,7 +38,7 @@ pub(crate) fn assert_staker_exit_intent_event(
     );
 }
 
-pub(crate) fn assert_new_staker_event(
+pub fn assert_new_staker_event(
     spied_event: @(ContractAddress, Event),
     staker_address: ContractAddress,
     reward_address: ContractAddress,
@@ -56,7 +56,7 @@ pub(crate) fn assert_new_staker_event(
     );
 }
 
-pub(crate) fn assert_stake_balance_changed_event(
+pub fn assert_stake_balance_changed_event(
     spied_event: @(ContractAddress, Event),
     staker_address: ContractAddress,
     old_self_stake: Amount,
@@ -75,7 +75,7 @@ pub(crate) fn assert_stake_balance_changed_event(
     );
 }
 
-pub(crate) fn assert_pool_member_exit_intent_event(
+pub fn assert_pool_member_exit_intent_event(
     spied_event: @(ContractAddress, Event),
     pool_member: ContractAddress,
     exit_timestamp: Timestamp,
@@ -90,7 +90,7 @@ pub(crate) fn assert_pool_member_exit_intent_event(
     );
 }
 
-pub(crate) fn assert_pool_member_exit_action_event(
+pub fn assert_pool_member_exit_action_event(
     spied_event: @(ContractAddress, Event), pool_member: ContractAddress, unpool_amount: Amount,
 ) {
     let expected_event = PoolEvents::PoolMemberExitAction { pool_member, unpool_amount };
@@ -102,7 +102,7 @@ pub(crate) fn assert_pool_member_exit_action_event(
     );
 }
 
-pub(crate) fn assert_pool_member_reward_claimed_event(
+pub fn assert_pool_member_reward_claimed_event(
     spied_event: @(ContractAddress, Event),
     pool_member: ContractAddress,
     reward_address: ContractAddress,
@@ -119,7 +119,7 @@ pub(crate) fn assert_pool_member_reward_claimed_event(
     );
 }
 
-pub(crate) fn assert_delegation_pool_member_balance_changed_event(
+pub fn assert_delegation_pool_member_balance_changed_event(
     mut spied_event: @(ContractAddress, Event),
     pool_member: ContractAddress,
     old_delegated_stake: Amount,
@@ -136,7 +136,7 @@ pub(crate) fn assert_delegation_pool_member_balance_changed_event(
     );
 }
 
-pub(crate) fn assert_staker_reward_address_change_event(
+pub fn assert_staker_reward_address_change_event(
     spied_event: @(ContractAddress, Event),
     staker_address: ContractAddress,
     new_address: ContractAddress,
@@ -153,7 +153,7 @@ pub(crate) fn assert_staker_reward_address_change_event(
     );
 }
 
-pub(crate) fn assert_commission_changed_event(
+pub fn assert_commission_changed_event(
     spied_event: @(ContractAddress, Event),
     staker_address: ContractAddress,
     pool_contract: ContractAddress,
@@ -171,7 +171,7 @@ pub(crate) fn assert_commission_changed_event(
     );
 }
 
-pub(crate) fn assert_new_delegation_pool_event(
+pub fn assert_new_delegation_pool_event(
     mut spied_event: @(ContractAddress, Event),
     staker_address: ContractAddress,
     pool_contract: ContractAddress,
@@ -188,7 +188,7 @@ pub(crate) fn assert_new_delegation_pool_event(
     );
 }
 
-pub(crate) fn assert_remove_from_delegation_pool_intent_event(
+pub fn assert_remove_from_delegation_pool_intent_event(
     spied_event: @(ContractAddress, Event),
     staker_address: ContractAddress,
     pool_contract: ContractAddress,
@@ -207,7 +207,7 @@ pub(crate) fn assert_remove_from_delegation_pool_intent_event(
     );
 }
 
-pub(crate) fn assert_remove_from_delegation_pool_action_event(
+pub fn assert_remove_from_delegation_pool_action_event(
     spied_event: @(ContractAddress, Event),
     pool_contract: ContractAddress,
     identifier: felt252,
@@ -224,7 +224,7 @@ pub(crate) fn assert_remove_from_delegation_pool_action_event(
     );
 }
 
-pub(crate) fn assert_pool_member_reward_address_change_event(
+pub fn assert_pool_member_reward_address_change_event(
     spied_event: @(ContractAddress, Event),
     pool_member: ContractAddress,
     new_address: ContractAddress,
@@ -241,7 +241,7 @@ pub(crate) fn assert_pool_member_reward_address_change_event(
     );
 }
 
-pub(crate) fn assert_staker_reward_claimed_event(
+pub fn assert_staker_reward_claimed_event(
     spied_event: @(ContractAddress, Event),
     staker_address: ContractAddress,
     reward_address: ContractAddress,
@@ -258,7 +258,7 @@ pub(crate) fn assert_staker_reward_claimed_event(
     );
 }
 
-pub(crate) fn assert_declare_operational_address_event(
+pub fn assert_declare_operational_address_event(
     spied_event: @(ContractAddress, Event),
     operational_address: ContractAddress,
     staker_address: ContractAddress,
@@ -274,7 +274,7 @@ pub(crate) fn assert_declare_operational_address_event(
     );
 }
 
-pub(crate) fn assert_change_operational_address_event(
+pub fn assert_change_operational_address_event(
     spied_event: @(ContractAddress, Event),
     staker_address: ContractAddress,
     new_address: ContractAddress,
@@ -291,7 +291,7 @@ pub(crate) fn assert_change_operational_address_event(
     );
 }
 
-pub(crate) fn assert_staker_removed_event(
+pub fn assert_staker_removed_event(
     spied_event: @(ContractAddress, Event), staker_address: ContractAddress,
 ) {
     let expected_event = PoolEvents::StakerRemoved { staker_address };
@@ -303,7 +303,7 @@ pub(crate) fn assert_staker_removed_event(
     );
 }
 
-pub(crate) fn assert_mint_request_event(
+pub fn assert_mint_request_event(
     spied_event: @(ContractAddress, Event), total_amount: Amount, num_msgs: u128,
 ) {
     let expected_event = RewardSupplierEvents::MintRequest { total_amount, num_msgs };
@@ -315,7 +315,7 @@ pub(crate) fn assert_mint_request_event(
     );
 }
 
-pub(crate) fn assert_delete_staker_event(
+pub fn assert_delete_staker_event(
     spied_event: @(ContractAddress, Event),
     staker_address: ContractAddress,
     reward_address: ContractAddress,
@@ -333,7 +333,7 @@ pub(crate) fn assert_delete_staker_event(
     );
 }
 
-pub(crate) fn assert_switch_delegation_pool_event(
+pub fn assert_switch_delegation_pool_event(
     spied_event: @(ContractAddress, Event),
     pool_member: ContractAddress,
     new_delegation_pool: ContractAddress,
@@ -350,7 +350,7 @@ pub(crate) fn assert_switch_delegation_pool_event(
     );
 }
 
-pub(crate) fn assert_change_delegation_pool_intent_event(
+pub fn assert_change_delegation_pool_intent_event(
     spied_event: @(ContractAddress, Event),
     pool_contract: ContractAddress,
     identifier: felt252,
@@ -368,7 +368,7 @@ pub(crate) fn assert_change_delegation_pool_intent_event(
     );
 }
 
-pub(crate) fn assert_new_pool_member_event(
+pub fn assert_new_pool_member_event(
     spied_event: @(ContractAddress, Event),
     pool_member: ContractAddress,
     staker_address: ContractAddress,
@@ -386,7 +386,7 @@ pub(crate) fn assert_new_pool_member_event(
     );
 }
 
-pub(crate) fn assert_rewards_supplied_to_delegation_pool_event(
+pub fn assert_rewards_supplied_to_delegation_pool_event(
     spied_event: @(ContractAddress, Event),
     staker_address: ContractAddress,
     pool_address: ContractAddress,
@@ -403,7 +403,7 @@ pub(crate) fn assert_rewards_supplied_to_delegation_pool_event(
     );
 }
 
-pub(crate) fn assert_paused_event(
+pub fn assert_paused_event(
     spied_event: @(ContractAddress, Event), account: ContractAddress,
 ) {
     let expected_event = StakingPauseEvents::Paused { account };
@@ -415,7 +415,7 @@ pub(crate) fn assert_paused_event(
     );
 }
 
-pub(crate) fn assert_unpaused_event(
+pub fn assert_unpaused_event(
     spied_event: @(ContractAddress, Event), account: ContractAddress,
 ) {
     let expected_event = StakingPauseEvents::Unpaused { account };
@@ -427,7 +427,7 @@ pub(crate) fn assert_unpaused_event(
     );
 }
 
-pub(crate) fn debug_dump_spied_events(ref spy: EventSpy) {
+pub fn debug_dump_spied_events(ref spy: EventSpy) {
     let mut serialized = array![];
     Serde::<
         Array<(starknet::ContractAddress, snforge_std::Event)>,
@@ -436,7 +436,7 @@ pub(crate) fn debug_dump_spied_events(ref spy: EventSpy) {
     println!("[#events, (emitterAddress, #keys, keys..., #values, values...)...]");
 }
 
-pub(crate) fn assert_minting_cap_changed_event(
+pub fn assert_minting_cap_changed_event(
     spied_event: @(ContractAddress, Event), old_c: Inflation, new_c: Inflation,
 ) {
     let expected_event = MintingCurveConfigEvents::MintingCapChanged { old_c, new_c };
@@ -448,7 +448,7 @@ pub(crate) fn assert_minting_cap_changed_event(
     );
 }
 
-pub(crate) fn assert_minimum_stake_changed_event(
+pub fn assert_minimum_stake_changed_event(
     spied_event: @(ContractAddress, Event), old_min_stake: Amount, new_min_stake: Amount,
 ) {
     let expected_event = StakingConfigEvents::MinimumStakeChanged { old_min_stake, new_min_stake };
@@ -460,7 +460,7 @@ pub(crate) fn assert_minimum_stake_changed_event(
     );
 }
 
-pub(crate) fn assert_epoch_info_changed_event(
+pub fn assert_epoch_info_changed_event(
     spied_event: @(ContractAddress, Event), epoch_duration: u32, epoch_length: u32,
 ) {
     let expected_event = StakingConfigEvents::EpochInfoChanged { epoch_duration, epoch_length };
@@ -472,7 +472,7 @@ pub(crate) fn assert_epoch_info_changed_event(
     );
 }
 
-pub(crate) fn assert_exit_wait_window_changed_event(
+pub fn assert_exit_wait_window_changed_event(
     spied_event: @(ContractAddress, Event), old_exit_window: TimeDelta, new_exit_window: TimeDelta,
 ) {
     let expected_event = StakingConfigEvents::ExitWaitWindowChanged {
@@ -486,7 +486,7 @@ pub(crate) fn assert_exit_wait_window_changed_event(
     );
 }
 
-pub(crate) fn assert_reward_supplier_changed_event(
+pub fn assert_reward_supplier_changed_event(
     spied_event: @(ContractAddress, Event),
     old_reward_supplier: ContractAddress,
     new_reward_supplier: ContractAddress,
@@ -502,7 +502,7 @@ pub(crate) fn assert_reward_supplier_changed_event(
     );
 }
 
-pub(crate) fn assert_staker_attestation_successful_event(
+pub fn assert_staker_attestation_successful_event(
     spied_event: @(ContractAddress, Event), staker_address: ContractAddress, epoch: Epoch,
 ) {
     let expected_event = AttestationEvents::StakerAttestationSuccessful { staker_address, epoch };
@@ -514,7 +514,7 @@ pub(crate) fn assert_staker_attestation_successful_event(
     );
 }
 
-pub(crate) fn assert_attestation_window_changed_event(
+pub fn assert_attestation_window_changed_event(
     spied_event: @(ContractAddress, Event),
     old_attestation_window: u16,
     new_attestation_window: u16,
@@ -530,7 +530,7 @@ pub(crate) fn assert_attestation_window_changed_event(
     );
 }
 
-pub(crate) fn assert_commission_commitment_set_event(
+pub fn assert_commission_commitment_set_event(
     spied_event: @(ContractAddress, Event),
     staker_address: ContractAddress,
     max_commission: Commission,
@@ -548,7 +548,7 @@ pub(crate) fn assert_commission_commitment_set_event(
 }
 
 
-pub(crate) fn assert_staker_rewards_updated_event(
+pub fn assert_staker_rewards_updated_event(
     spied_event: @(ContractAddress, Event),
     staker_address: ContractAddress,
     staker_rewards: Amount,

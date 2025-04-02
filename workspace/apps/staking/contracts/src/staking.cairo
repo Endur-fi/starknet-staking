@@ -2,12 +2,12 @@
 mod align_upg_vars_eic;
 mod assign_root_gov_eic;
 mod eic;
-pub(crate) mod errors;
+pub mod errors;
 pub mod interface;
-pub(crate) mod objects;
+pub mod objects;
 #[cfg(test)]
 mod pause_test;
-pub(crate) mod staker_balance_trace;
+pub mod staker_balance_trace;
 pub mod staking;
 #[cfg(test)]
 mod test;

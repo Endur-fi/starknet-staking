@@ -567,7 +567,7 @@ pub mod Pool {
     }
 
     #[generate_trait]
-    pub(crate) impl InternalPoolMigration of IPoolMigrationInternal {
+    pub impl InternalPoolMigration of IPoolMigrationInternal {
         /// Returns the class hash of the previous contract version.
         ///
         /// **Note**: This function must be reimplemented in the next version of the contract.
@@ -577,7 +577,7 @@ pub mod Pool {
     }
 
     #[generate_trait]
-    pub(crate) impl InternalPoolFunctions of InternalPoolFunctionsTrait {
+    pub impl InternalPoolFunctions of InternalPoolFunctionsTrait {
         fn assert_staker_is_active(self: @ContractState) {
             assert!(self.is_staker_active(), "{}", Error::STAKER_INACTIVE);
         }

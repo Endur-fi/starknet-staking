@@ -188,7 +188,7 @@ pub struct PoolMemberInfo {
 
 #[cfg(test)]
 #[generate_trait]
-pub(crate) impl PoolMemberInfoIntoInternalPoolMemberInfoV1Impl of PoolMemberInfoIntoInternalPoolMemberInfoV1Trait {
+pub impl PoolMemberInfoIntoInternalPoolMemberInfoV1Impl of PoolMemberInfoIntoInternalPoolMemberInfoV1Trait {
     fn to_internal(self: PoolMemberInfo) -> InternalPoolMemberInfoV1 {
         InternalPoolMemberInfoV1 {
             reward_address: self.reward_address,

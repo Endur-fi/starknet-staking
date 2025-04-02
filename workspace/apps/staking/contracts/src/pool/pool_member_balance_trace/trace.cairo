@@ -14,7 +14,7 @@ pub struct PoolMemberBalanceTrace {
 }
 
 #[derive(Copy, Drop, Serde, starknet::Store, Debug, PartialEq)]
-pub(crate) struct PoolMemberBalance {
+pub struct PoolMemberBalance {
     balance: Amount,
     /// Index of the first non-existent entry in the cumulative rewards trace at the time of the
     /// balance change.
@@ -26,7 +26,7 @@ pub(crate) struct PoolMemberBalance {
     cumulative_rewards_trace_idx: VecIndex,
 }
 
-pub(crate) impl PoolMemberBalanceZero of core::num::traits::Zero<PoolMemberBalance> {
+pub impl PoolMemberBalanceZero of core::num::traits::Zero<PoolMemberBalance> {
     fn zero() -> PoolMemberBalance {
         PoolMemberBalance { balance: Zero::zero(), cumulative_rewards_trace_idx: Zero::zero() }
     }
@@ -41,7 +41,7 @@ pub(crate) impl PoolMemberBalanceZero of core::num::traits::Zero<PoolMemberBalan
 }
 
 #[generate_trait]
-pub(crate) impl PoolMemberBalanceImpl of PoolMemberBalanceTrait {
+pub impl PoolMemberBalanceImpl of PoolMemberBalanceTrait {
     fn new(balance: Amount, cumulative_rewards_trace_idx: VecIndex) -> PoolMemberBalance {
         PoolMemberBalance { balance, cumulative_rewards_trace_idx }
     }
@@ -62,14 +62,14 @@ struct PoolMemberBalanceCheckpoint {
 }
 
 #[derive(Copy, Drop, Serde, PartialEq, Debug, starknet::Store)]
-pub(crate) struct PoolMemberCheckpoint {
+pub struct PoolMemberCheckpoint {
     epoch: Epoch,
     balance: Amount,
     cumulative_rewards_trace_idx: VecIndex,
 }
 
 #[generate_trait]
-pub(crate) impl PoolMemberCheckpointImpl of PoolMemberCheckpointTrait {
+pub impl PoolMemberCheckpointImpl of PoolMemberCheckpointTrait {
     fn new(
         epoch: Epoch, balance: Amount, cumulative_rewards_trace_idx: VecIndex,
     ) -> PoolMemberCheckpoint {

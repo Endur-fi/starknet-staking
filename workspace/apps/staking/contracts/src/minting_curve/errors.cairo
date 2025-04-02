@@ -2,7 +2,7 @@ use staking::constants::MAX_C_NUM;
 use starkware_utils::errors::{Describable, ErrorDisplay};
 
 #[derive(Drop)]
-pub(crate) enum Error {
+pub enum Error {
     TOTAL_SUPPLY_NOT_AMOUNT_TYPE,
     UNAUTHORIZED_MESSAGE_SENDER,
     C_NUM_OUT_OF_RANGE,

@@ -1107,7 +1107,7 @@ pub mod Staking {
     }
 
     #[generate_trait]
-    pub(crate) impl InternalStakingMigration of IStakingMigrationInternal {
+    pub impl InternalStakingMigration of IStakingMigrationInternal {
         /// Returns the class hash of the previous contract version.
         ///
         /// **Note**: This function must be reimplemented in the next version of the contract.
@@ -1117,7 +1117,7 @@ pub mod Staking {
     }
 
     #[generate_trait]
-    pub(crate) impl InternalStakingFunctions of InternalStakingFunctionsTrait {
+    pub impl InternalStakingFunctions of InternalStakingFunctionsTrait {
         fn send_rewards(
             self: @ContractState,
             reward_address: ContractAddress,
