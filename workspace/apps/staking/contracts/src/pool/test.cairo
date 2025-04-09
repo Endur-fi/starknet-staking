@@ -21,34 +21,34 @@ use snforge_std::cheatcodes::events::{EventSpyTrait, EventsFilterTrait};
 use snforge_std::{
     CheatSpan, cheat_caller_address, start_cheat_block_timestamp_global, test_address,
 };
-use staking::attestation::interface::{IAttestationDispatcher, IAttestationDispatcherTrait};
-use staking::constants::BASE_VALUE;
-use staking::errors::GenericError;
-use staking::flow_test::utils::upgrade_implementation;
-use staking::pool::errors::Error;
-use staking::pool::interface::{
+use staking_test::attestation::interface::{IAttestationDispatcher, IAttestationDispatcherTrait};
+use staking_test::constants::BASE_VALUE;
+use staking_test::errors::GenericError;
+use staking_test::flow_test::utils::upgrade_implementation;
+use staking_test::pool::errors::Error;
+use staking_test::pool::interface::{
     IPool, IPoolDispatcher, IPoolDispatcherTrait, IPoolMigrationDispatcher,
     IPoolMigrationDispatcherTrait, IPoolSafeDispatcher, IPoolSafeDispatcherTrait, PoolContractInfo,
     PoolMemberInfo, PoolMemberInfoIntoInternalPoolMemberInfoV1Trait,
 };
-use staking::pool::objects::{
+use staking_test::pool::objects::{
     InternalPoolMemberInfoLatestTrait, InternalPoolMemberInfoTestTrait, InternalPoolMemberInfoV1,
     SwitchPoolData, VInternalPoolMemberInfo, VInternalPoolMemberInfoTestTrait,
     VInternalPoolMemberInfoTrait, VStorageContractTest,
 };
-use staking::pool::pool::Pool;
-use staking::reward_supplier::interface::{
+use staking_test::pool::pool::Pool;
+use staking_test::reward_supplier::interface::{
     IRewardSupplierDispatcher, IRewardSupplierDispatcherTrait,
 };
-use staking::staking::interface::{
+use staking_test::staking::interface::{
     IStakingDispatcher, IStakingDispatcherTrait, StakerInfo, StakerInfoTrait, StakerPoolInfoTrait,
 };
-use staking::staking::objects::{
+use staking_test::staking::objects::{
     InternalStakerInfoLatestTrait, UndelegateIntentKey, UndelegateIntentValue,
     UndelegateIntentValueZero,
 };
-use staking::types::InternalPoolMemberInfoLatest;
-use staking::{event_test_utils, test_utils};
+use staking_test::types::InternalPoolMemberInfoLatest;
+use staking_test::{event_test_utils, test_utils};
 use starkware_utils::components::replaceability::interface::{EICData, ImplementationData};
 use starkware_utils::errors::Describable;
 use starkware_utils::types::time::time::Time;

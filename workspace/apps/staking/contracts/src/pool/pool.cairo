@@ -8,27 +8,27 @@ pub mod Pool {
     use openzeppelin::access::accesscontrol::AccessControlComponent;
     use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
-    use staking::constants::FIRST_VALID_EPOCH;
-    use staking::errors::GenericError;
-    use staking::pool::errors::Error;
-    use staking::pool::interface::{Events, IPool, IPoolMigration, PoolContractInfo, PoolMemberInfo};
-    use staking::pool::objects::{
+    use staking_test::constants::FIRST_VALID_EPOCH;
+    use staking_test::errors::GenericError;
+    use staking_test::pool::errors::Error;
+    use staking_test::pool::interface::{Events, IPool, IPoolMigration, PoolContractInfo, PoolMemberInfo};
+    use staking_test::pool::objects::{
         InternalPoolMemberInfoConvertTrait, InternalPoolMemberInfoLatestTrait, SwitchPoolData,
         VInternalPoolMemberInfo, VInternalPoolMemberInfoTrait,
     };
-    use staking::pool::pool_member_balance_trace::trace::{
+    use staking_test::pool::pool_member_balance_trace::trace::{
         MutablePoolMemberBalanceTraceTrait, PoolMemberBalance, PoolMemberBalanceTrace,
         PoolMemberBalanceTraceTrait, PoolMemberBalanceTrait, PoolMemberCheckpoint,
         PoolMemberCheckpointTrait,
     };
-    use staking::staking::interface::{
+    use staking_test::staking::interface::{
         IStakingDispatcher, IStakingDispatcherTrait, IStakingPoolDispatcher,
         IStakingPoolDispatcherTrait, StakerInfo, StakerInfoTrait,
     };
-    use staking::types::{
+    use staking_test::types::{
         Amount, Commission, Epoch, Index, InternalPoolMemberInfoLatest, VecIndex, Version,
     };
-    use staking::utils::{
+    use staking_test::utils::{
         CheckedIERC20DispatcherTrait, compute_global_index_diff, compute_rewards_rounded_down,
     };
     use starknet::class_hash::ClassHash;

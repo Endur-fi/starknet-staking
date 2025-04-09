@@ -1,4 +1,4 @@
-use staking::types::{Amount, Epoch, Index, Inflation};
+use staking_test::types::{Amount, Epoch, Index, Inflation};
 use starkware_utils::constants::WEEK;
 use starkware_utils::types::time::time::TimeDelta;
 

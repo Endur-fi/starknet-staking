@@ -3,8 +3,10 @@ pub mod constants;
 pub mod errors;
 #[cfg(test)]
 pub mod event_test_utils;
-#[cfg(test)]
-mod flow_test;
+
+// #[cfg(test)]
+#[cfg(target: "test")]
+pub mod flow_test;
 pub mod minting_curve;
 pub mod pool;
 pub mod reward_supplier;

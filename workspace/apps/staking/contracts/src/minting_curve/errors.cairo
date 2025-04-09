@@ -1,4 +1,4 @@
-use staking::constants::MAX_C_NUM;
+use staking_test::constants::MAX_C_NUM;
 use starkware_utils::errors::{Describable, ErrorDisplay};
 
 #[derive(Drop)]

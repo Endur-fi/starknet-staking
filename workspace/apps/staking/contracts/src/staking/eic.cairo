@@ -2,9 +2,9 @@
 #[starknet::contract]
 mod StakingEIC {
     use core::num::traits::Zero;
-    use staking::constants::FIRST_VALID_EPOCH;
-    use staking::staking::objects::{EpochInfo, EpochInfoTrait};
-    use staking::types::{Amount, Version};
+    use staking_test::constants::FIRST_VALID_EPOCH;
+    use staking_test::staking::objects::{EpochInfo, EpochInfoTrait};
+    use staking_test::types::{Amount, Version};
     use starknet::class_hash::ClassHash;
     use starknet::storage::Map;
     use starknet::{ContractAddress, get_block_number};

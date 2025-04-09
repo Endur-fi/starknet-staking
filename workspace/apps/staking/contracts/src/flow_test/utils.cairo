@@ -7,32 +7,32 @@ use core::num::traits::zero::Zero;
 use core::traits::Into;
 use openzeppelin::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use snforge_std::{ContractClassTrait, DeclareResultTrait, start_cheat_block_timestamp_global};
-use staking::attestation::interface::{IAttestationDispatcher, IAttestationDispatcherTrait};
-use staking::constants::MIN_ATTESTATION_WINDOW;
-use staking::minting_curve::interface::IMintingCurveDispatcher;
-use staking::pool::interface::{
+use staking_test::attestation::interface::{IAttestationDispatcher, IAttestationDispatcherTrait};
+use staking_test::constants::MIN_ATTESTATION_WINDOW;
+use staking_test::minting_curve::interface::IMintingCurveDispatcher;
+use staking_test::pool::interface::{
     IPoolDispatcher, IPoolDispatcherTrait, IPoolMigrationDispatcher, IPoolMigrationDispatcherTrait,
     IPoolSafeDispatcher, IPoolSafeDispatcherTrait, PoolContractInfo, PoolMemberInfo,
 };
-use staking::reward_supplier::interface::{
+use staking_test::reward_supplier::interface::{
     IRewardSupplierDispatcher, IRewardSupplierDispatcherTrait,
 };
-use staking::staking::interface::{
+use staking_test::staking::interface::{
     IStakingConfigDispatcher, IStakingConfigDispatcherTrait, IStakingDispatcher,
     IStakingDispatcherTrait, IStakingMigrationDispatcher, IStakingMigrationDispatcherTrait,
     IStakingPoolSafeDispatcher, IStakingPoolSafeDispatcherTrait, IStakingSafeDispatcher,
     IStakingSafeDispatcherTrait, StakerInfo, StakerInfoTrait, StakerPoolInfoTrait,
 };
-use staking::staking::objects::{EpochInfo, EpochInfoTrait};
-use staking::test_utils::constants::{
+use staking_test::staking::objects::{EpochInfo, EpochInfoTrait};
+use staking_test::test_utils::constants::{
     EPOCH_DURATION, EPOCH_LENGTH, EPOCH_STARTING_BLOCK, STARTING_BLOCK_OFFSET, STRK_TOKEN_ADDRESS,
     UPGRADE_GOVERNOR,
 };
-use staking::test_utils::{
+use staking_test::test_utils::{
     StakingInitConfig, calculate_block_offset, declare_pool_contract, declare_pool_eic_contract,
     declare_staking_eic_contract,
 };
-use staking::types::{
+use staking_test::types::{
     Amount, Commission, Index, InternalPoolMemberInfoLatest, InternalStakerInfoLatest,
 };
 use starknet::syscalls::deploy_syscall;
@@ -539,9 +539,9 @@ pub struct SystemState<TTokenState> {
     pub minting_curve: MintingCurveState,
     pub reward_supplier: RewardSupplierState,
     pub pool: Option<PoolState>,
-    attestation: Option<AttestationState>,
+    pub attestation: Option<AttestationState>,
     pub base_account: felt252,
-    staker_address: Option<ContractAddress>,
+    pub staker_address: Option<ContractAddress>,
 }
 
 #[generate_trait]
@@ -1157,7 +1157,7 @@ impl STRKTTokenImpl of TokenTrait<STRKTokenState> {
 #[generate_trait]
 /// Replaceability utils for internal use of the system. Meant to be used before running a
 /// regression test.
-impl SystemReplaceabilityImpl of SystemReplaceabilityTrait {
+pub impl SystemReplaceabilityImpl of SystemReplaceabilityTrait {
     /// Deploy attestation contract and upgrades the contracts in the system state with local
     /// implementations.
     fn deploy_attestation_and_upgrade_contracts_implementation(
@@ -1279,7 +1279,7 @@ pub fn upgrade_implementation(
 
 #[generate_trait]
 /// System factory for creating system states used in flow and regression tests.
-impl SystemFactoryImpl of SystemFactoryTrait {
+pub impl SystemFactoryImpl of SystemFactoryTrait {
     // System state used for flow tests.
     fn local_system() -> SystemState<TokenState> {
         let cfg: StakingInitConfig = Default::default();

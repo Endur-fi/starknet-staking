@@ -25,19 +25,19 @@ use snforge_std::{
     CheatSpan, cheat_account_contract_address, cheat_caller_address,
     start_cheat_block_number_global, start_cheat_block_timestamp_global,
 };
-use staking::attestation::interface::{IAttestationDispatcher, IAttestationDispatcherTrait};
-use staking::constants::{BASE_VALUE, DEFAULT_EXIT_WAIT_WINDOW, MAX_EXIT_WAIT_WINDOW};
-use staking::errors::GenericError;
-use staking::flow_test::utils::MainnetClassHashes::MAINNET_STAKING_CLASS_HASH_V0;
-use staking::flow_test::utils::{declare_staking_contract, upgrade_implementation};
-use staking::pool::errors::Error as PoolError;
-use staking::pool::interface::{IPoolDispatcher, IPoolDispatcherTrait, PoolContractInfo};
-use staking::pool::objects::SwitchPoolData;
-use staking::reward_supplier::interface::{
+use staking_test::attestation::interface::{IAttestationDispatcher, IAttestationDispatcherTrait};
+use staking_test::constants::{BASE_VALUE, DEFAULT_EXIT_WAIT_WINDOW, MAX_EXIT_WAIT_WINDOW};
+use staking_test::errors::GenericError;
+use staking_test::flow_test::utils::MainnetClassHashes::MAINNET_STAKING_CLASS_HASH_V0;
+use staking_test::flow_test::utils::{declare_staking_contract, upgrade_implementation};
+use staking_test::pool::errors::Error as PoolError;
+use staking_test::pool::interface::{IPoolDispatcher, IPoolDispatcherTrait, PoolContractInfo};
+use staking_test::pool::objects::SwitchPoolData;
+use staking_test::reward_supplier::interface::{
     IRewardSupplierDispatcher, IRewardSupplierDispatcherTrait,
 };
-use staking::staking::errors::Error;
-use staking::staking::interface::{
+use staking_test::staking::errors::Error;
+use staking_test::staking::interface::{
     CommissionCommitment, IStakingAttestationDispatcher, IStakingAttestationDispatcherTrait,
     IStakingAttestationSafeDispatcher, IStakingAttestationSafeDispatcherTrait,
     IStakingConfigDispatcher, IStakingConfigDispatcherTrait, IStakingConfigSafeDispatcher,
@@ -47,20 +47,20 @@ use staking::staking::interface::{
     IStakingSafeDispatcher, IStakingSafeDispatcherTrait, StakerInfo, StakerInfoTrait,
     StakerPoolInfoTrait, StakingContractInfo,
 };
-use staking::staking::objects::{
+use staking_test::staking::objects::{
     AttestationInfoTrait, EpochInfo, EpochInfoTrait, InternalStakerInfoLatestTrait,
     InternalStakerInfoTestTrait, InternalStakerInfoV1, UndelegateIntentKey, UndelegateIntentValue,
     UndelegateIntentValueTrait, UndelegateIntentValueZero, VersionedInternalStakerInfo,
     VersionedInternalStakerInfoTestTrait, VersionedInternalStakerInfoTrait,
     VersionedStorageContractTest,
 };
-use staking::staking::staking::Staking;
-use staking::types::{Amount, InternalStakerInfoLatest};
-use staking::utils::{
+use staking_test::staking::staking::Staking;
+use staking_test::types::{Amount, InternalStakerInfoLatest};
+use staking_test::utils::{
     compute_commission_amount_rounded_down, compute_rewards_rounded_down,
     compute_rewards_rounded_up,
 };
-use staking::{event_test_utils, test_utils};
+use staking_test::{event_test_utils, test_utils};
 use starknet::class_hash::ClassHash;
 use starknet::{ContractAddress, Store, get_block_number};
 use starkware_utils::components::replaceability::interface::{EICData, ImplementationData};
@@ -2544,14 +2544,14 @@ fn test_current_epoch_starting_block() {
     let staking_contract = cfg.test_info.staking_contract;
     let staking_dispatcher = IStakingDispatcher { contract_address: staking_contract };
     let epoch_info = staking_dispatcher.get_epoch_info();
-    assert_eq!(epoch_info.current_epoch_starting_block(), EPOCH_STARTING_BLOCK);
+    assert(epoch_info.current_epoch_starting_block() == EPOCH_STARTING_BLOCK, 'err');
     advance_block_number_global(blocks: EPOCH_LENGTH.into() - 1);
     let epoch_info = staking_dispatcher.get_epoch_info();
-    assert_eq!(epoch_info.current_epoch_starting_block(), EPOCH_STARTING_BLOCK);
+    assert(epoch_info.current_epoch_starting_block() == EPOCH_STARTING_BLOCK, 'err');
     advance_block_number_global(blocks: 1);
     let next_epoch_starting_block = EPOCH_STARTING_BLOCK + EPOCH_LENGTH.into();
     let epoch_info = staking_dispatcher.get_epoch_info();
-    assert_eq!(epoch_info.current_epoch_starting_block(), next_epoch_starting_block);
+    assert(epoch_info.current_epoch_starting_block() == next_epoch_starting_block, 'err');
 
     // Update epoch len and check again.
     let new_epoch_len = EPOCH_LENGTH.into() * 15;
@@ -2564,19 +2564,20 @@ fn test_current_epoch_starting_block() {
         .set_epoch_info(epoch_duration: new_epoch_duration, epoch_length: new_epoch_len);
     let epoch_info = staking_dispatcher.get_epoch_info();
     // No new epoch started yet, so starting block should be the same.
-    assert_eq!(epoch_info.current_epoch_starting_block(), next_epoch_starting_block);
+    assert(epoch_info.current_epoch_starting_block() == next_epoch_starting_block, 'err');
     // Advance epoch and check again.
     advance_epoch_global();
     let epoch_info = staking_dispatcher.get_epoch_info();
-    assert_eq!(
-        epoch_info.current_epoch_starting_block(), next_epoch_starting_block + EPOCH_LENGTH.into(),
+    assert(
+        epoch_info.current_epoch_starting_block() == next_epoch_starting_block + EPOCH_LENGTH.into(),
+        'err',
     );
     // Advance epoch and check again.
     advance_block_number_global(blocks: new_epoch_len.into());
     let epoch_info = staking_dispatcher.get_epoch_info();
-    assert_eq!(
-        epoch_info.current_epoch_starting_block(),
-        next_epoch_starting_block + EPOCH_LENGTH.into() + new_epoch_len.into(),
+    assert(
+        epoch_info.current_epoch_starting_block() == next_epoch_starting_block + EPOCH_LENGTH.into() + new_epoch_len.into(),
+        'err',
     );
 }
 
@@ -3361,7 +3362,7 @@ fn test_staking_eic() {
         size: Store::<ContractAddress>::size().into(),
     )
         .at(0);
-    assert_eq!(attestation_contract, cfg.test_info.attestation_contract.into());
+    assert(attestation_contract == cfg.test_info.attestation_contract.into(), 'err');
 }
 
 #[test]

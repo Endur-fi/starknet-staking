@@ -1,9 +1,9 @@
 use core::num::traits::Zero;
-use staking::pool::interface::{IPoolDispatcherTrait, IPoolLibraryDispatcher, PoolMemberInfo};
-use staking::pool::pool_member_balance_trace::trace::{
+use staking_test::pool::interface::{IPoolDispatcherTrait, IPoolLibraryDispatcher, PoolMemberInfo};
+use staking_test::pool::pool_member_balance_trace::trace::{
     PoolMemberCheckpoint, PoolMemberCheckpointTrait,
 };
-use staking::types::{Amount, Commission, Index, InternalPoolMemberInfoLatest, VecIndex};
+use staking_test::types::{Amount, Commission, Index, InternalPoolMemberInfoLatest, VecIndex};
 use starknet::{ClassHash, ContractAddress};
 use starkware_utils::types::time::time::Timestamp;
 
@@ -256,8 +256,8 @@ pub mod VStorageContractTest {
 #[cfg(test)]
 mod internal_pool_member_info_latest_tests {
     use core::num::traits::zero::Zero;
-    use staking::pool::interface::PoolMemberInfo;
-    use staking::test_utils::constants::POOL_MEMBER_REWARD_ADDRESS;
+    use staking_test::pool::interface::PoolMemberInfo;
+    use staking_test::test_utils::constants::POOL_MEMBER_REWARD_ADDRESS;
     use super::{
         InternalPoolMemberInfoLatest, InternalPoolMemberInfoLatestTrait, PoolMemberCheckpointTrait,
     };
@@ -300,7 +300,7 @@ mod internal_pool_member_info_latest_tests {
                 cumulative_rewards_trace_idx: Zero::zero(),
             ),
         };
-        assert_eq!(pool_member_info, expected);
+        assert(pool_member_info == expected, 'Err');
     }
 }
 

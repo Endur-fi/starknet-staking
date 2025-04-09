@@ -1,11 +1,11 @@
 use core::cmp::max;
 use core::num::traits::Zero;
-use staking::staking::errors::Error;
-use staking::staking::interface::{
+use staking_test::staking::errors::Error;
+use staking_test::staking::interface::{
     CommissionCommitment, IStakingDispatcherTrait, IStakingLibraryDispatcher, StakerInfo,
     StakerPoolInfo,
 };
-use staking::types::{Amount, Epoch, Index, InternalStakerInfoLatest};
+use staking_test::types::{Amount, Epoch, Index, InternalStakerInfoLatest};
 use starknet::{ClassHash, ContractAddress, get_block_number};
 use starkware_utils::errors::OptionAuxTrait;
 use starkware_utils::types::time::time::{Time, TimeDelta, Timestamp};
@@ -162,7 +162,7 @@ impl PrivateEpochInfoImpl of PrivateEpochInfoTrait {
 mod epoch_info_tests {
     use core::num::traits::Zero;
     use snforge_std::start_cheat_block_number_global;
-    use staking::staking::objects::{EpochInfo, EpochInfoTrait};
+    use staking_test::staking::objects::{EpochInfo, EpochInfoTrait};
     use starknet::get_block_number;
 
     #[test]
@@ -180,7 +180,7 @@ mod epoch_info_tests {
             previous_length: Zero::zero(),
             previous_epoch_duration: Zero::zero(),
         };
-        assert_eq!(epoch_info, expected_epoch_info);
+        assert(epoch_info == expected_epoch_info, 'EpochInfo not correctly');
     }
 
     #[test]

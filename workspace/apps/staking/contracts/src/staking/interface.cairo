@@ -1,9 +1,9 @@
 use core::num::traits::Zero;
-use staking::staking::errors::Error;
-use staking::staking::objects::{
+use staking_test::staking::errors::Error;
+use staking_test::staking::objects::{
     AttestationInfo, EpochInfo, UndelegateIntentKey, UndelegateIntentValue,
 };
-use staking::types::{Amount, Commission, Epoch, Index, InternalStakerInfoLatest};
+use staking_test::types::{Amount, Commission, Epoch, Index, InternalStakerInfoLatest};
 use starknet::{ClassHash, ContractAddress};
 use starkware_utils::errors::OptionAuxTrait;
 use starkware_utils::types::time::time::{TimeDelta, Timestamp};
@@ -194,7 +194,7 @@ pub trait IStakingAttestation<TContractState> {
 }
 
 pub mod Events {
-    use staking::types::{Amount, Commission, Epoch};
+    use staking_test::types::{Amount, Commission, Epoch};
     use starknet::ContractAddress;
     use starkware_utils::types::time::time::Timestamp;
     #[derive(Debug, Drop, PartialEq, starknet::Event)]
@@ -355,7 +355,7 @@ pub mod PauseEvents {
 }
 
 pub mod ConfigEvents {
-    use staking::types::Amount;
+    use staking_test::types::Amount;
     use starknet::ContractAddress;
     use starkware_utils::types::time::time::TimeDelta;
     #[derive(Debug, Drop, PartialEq, starknet::Event)]

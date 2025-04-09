@@ -1,11 +1,11 @@
 use core::num::traits::Zero;
-use staking::constants::STRK_IN_FRIS;
-use staking::flow_test::flows;
-use staking::flow_test::utils::{
+use staking_test::constants::STRK_IN_FRIS;
+use staking_test::flow_test::flows;
+use staking_test::flow_test::utils::{
     RewardSupplierTrait, StakingTrait, SystemConfigTrait, SystemDelegatorTrait, SystemStakerTrait,
     SystemTrait, test_flow_local, test_flow_mainnet,
 };
-use staking::test_utils::StakingInitConfig;
+use staking_test::test_utils::StakingInitConfig;
 use starkware_utils::math::abs::wide_abs_diff;
 use starkware_utils::types::time::time::Time;
 use starkware_utils_testing::test_utils::TokenTrait;

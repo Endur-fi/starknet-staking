@@ -1,4 +1,4 @@
-use staking::staking::staking::Staking::COMMISSION_DENOMINATOR;
+use staking_test::staking::staking::Staking::COMMISSION_DENOMINATOR;
 use starkware_utils::errors::{Describable, ErrorDisplay};
 
 #[derive(Drop)]

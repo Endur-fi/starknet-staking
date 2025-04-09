@@ -145,7 +145,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "staking"
+name = "staking_test"
 version = "1.14.4"
 dependencies = [
  "openzeppelin",

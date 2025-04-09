@@ -1,5 +1,5 @@
 use core::num::traits::Zero;
-use staking::types::{Amount, Epoch};
+use staking_test::types::{Amount, Epoch};
 use starknet::storage::{
     Mutable, MutableVecTrait, StoragePath, StoragePointerReadAccess, StoragePointerWriteAccess, Vec,
     VecTrait,

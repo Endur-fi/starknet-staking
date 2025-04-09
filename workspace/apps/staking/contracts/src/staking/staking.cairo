@@ -7,31 +7,31 @@ pub mod Staking {
     use openzeppelin::access::accesscontrol::AccessControlComponent;
     use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
-    use staking::constants::{DEFAULT_EXIT_WAIT_WINDOW, FIRST_VALID_EPOCH, MAX_EXIT_WAIT_WINDOW};
-    use staking::errors::GenericError;
-    use staking::pool::errors::Error as PoolError;
-    use staking::pool::interface::{IPoolDispatcher, IPoolDispatcherTrait};
-    use staking::reward_supplier::interface::{
+    use staking_test::constants::{DEFAULT_EXIT_WAIT_WINDOW, FIRST_VALID_EPOCH, MAX_EXIT_WAIT_WINDOW};
+    use staking_test::errors::GenericError;
+    use staking_test::pool::errors::Error as PoolError;
+    use staking_test::pool::interface::{IPoolDispatcher, IPoolDispatcherTrait};
+    use staking_test::reward_supplier::interface::{
         IRewardSupplierDispatcher, IRewardSupplierDispatcherTrait,
     };
-    use staking::staking::errors::Error;
-    use staking::staking::interface::{
+    use staking_test::staking::errors::Error;
+    use staking_test::staking::interface::{
         CommissionCommitment, ConfigEvents, Events, IStaking, IStakingAttestation, IStakingConfig,
         IStakingMigration, IStakingPause, IStakingPool, PauseEvents, StakerInfo,
         StakerPoolInfoTrait, StakingContractInfo,
     };
-    use staking::staking::objects::{
+    use staking_test::staking::objects::{
         AttestationInfo, AttestationInfoTrait, EpochInfo, EpochInfoTrait,
         InternalStakerInfoConvertTrait, InternalStakerInfoLatestTrait, UndelegateIntentKey,
         UndelegateIntentValue, UndelegateIntentValueTrait, UndelegateIntentValueZero,
         VersionedInternalStakerInfo, VersionedInternalStakerInfoTrait,
     };
-    use staking::staking::staker_balance_trace::trace::{
+    use staking_test::staking::staker_balance_trace::trace::{
         MutableStakerBalanceTraceTrait, StakerBalance, StakerBalanceTrace, StakerBalanceTraceTrait,
         StakerBalanceTrait,
     };
-    use staking::types::{Amount, Commission, Epoch, Index, InternalStakerInfoLatest, Version};
-    use staking::utils::{
+    use staking_test::types::{Amount, Commission, Epoch, Index, InternalStakerInfoLatest, Version};
+    use staking_test::utils::{
         CheckedIERC20DispatcherTrait, compute_commission_amount_rounded_down,
         compute_new_delegated_stake, deploy_delegation_pool_contract,
     };

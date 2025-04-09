@@ -1,6 +1,6 @@
 use core::num::traits::Zero;
-use staking::pool::pool_member_balance_trace::mock::{IMockTrace, MockTrace};
-use staking::pool::pool_member_balance_trace::trace::{
+use staking_test::pool::pool_member_balance_trace::mock::{IMockTrace, MockTrace};
+use staking_test::pool::pool_member_balance_trace::trace::{
     PoolMemberBalanceTrait, PoolMemberCheckpointTrait,
 };
 
@@ -142,11 +142,11 @@ fn test_is_non_empty() {
 
 fn test_is_non_empty_mutable() {
     let mut mock_trace = CONTRACT_STATE();
-    assert_eq!(mock_trace.is_non_empty(), false);
+    assert(mock_trace.is_non_empty() == false, 'Empty trace');
 
     mock_trace
         .insert(100, PoolMemberBalanceTrait::new(balance: 1000, cumulative_rewards_trace_idx: 1));
-    assert_eq!(mock_trace.is_non_empty(), true);
+    assert(mock_trace.is_non_empty() == true, 'Non-empty trace');
 }
 
 #[test]

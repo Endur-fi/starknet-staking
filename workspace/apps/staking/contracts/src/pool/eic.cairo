@@ -2,8 +2,8 @@
 #[starknet::contract]
 mod PoolEIC {
     use core::num::traits::Zero;
-    use staking::staking::interface::{IStakingPoolDispatcher, IStakingPoolDispatcherTrait};
-    use staking::types::{Index, Version};
+    use staking_test::staking::interface::{IStakingPoolDispatcher, IStakingPoolDispatcherTrait};
+    use staking_test::types::{Index, Version};
     use starknet::ContractAddress;
     use starknet::class_hash::ClassHash;
     use starknet::storage::Map;

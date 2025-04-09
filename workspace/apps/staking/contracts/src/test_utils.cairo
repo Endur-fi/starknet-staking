@@ -17,26 +17,26 @@ use openzeppelin::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTr
 use snforge_std::{
     ContractClassTrait, DeclareResultTrait, start_cheat_block_number_global, test_address,
 };
-use staking::constants::{C_DENOM, DEFAULT_C_NUM, DEFAULT_EXIT_WAIT_WINDOW, MIN_ATTESTATION_WINDOW};
-use staking::errors::GenericError;
-use staking::minting_curve::interface::{
+use staking_test::constants::{C_DENOM, DEFAULT_C_NUM, DEFAULT_EXIT_WAIT_WINDOW, MIN_ATTESTATION_WINDOW};
+use staking_test::errors::GenericError;
+use staking_test::minting_curve::interface::{
     IMintingCurveDispatcher, IMintingCurveDispatcherTrait, MintingCurveContractInfo,
 };
-use staking::minting_curve::minting_curve::MintingCurve;
-use staking::pool::interface::{IPoolDispatcher, IPoolDispatcherTrait, PoolMemberInfo};
-use staking::pool::pool::Pool;
-use staking::pool::pool_member_balance_trace::trace::PoolMemberCheckpointTrait;
-use staking::reward_supplier::reward_supplier::RewardSupplier;
-use staking::staking::interface::{
+use staking_test::minting_curve::minting_curve::MintingCurve;
+use staking_test::pool::interface::{IPoolDispatcher, IPoolDispatcherTrait, PoolMemberInfo};
+use staking_test::pool::pool::Pool;
+use staking_test::pool::pool_member_balance_trace::trace::PoolMemberCheckpointTrait;
+use staking_test::reward_supplier::reward_supplier::RewardSupplier;
+use staking_test::staking::interface::{
     IStaking, IStakingDispatcher, IStakingDispatcherTrait, IStakingPauseDispatcher,
     IStakingPauseDispatcherTrait, StakerInfo, StakerInfoTrait, StakerPoolInfo, StakerPoolInfoTrait,
 };
-use staking::staking::objects::{EpochInfo, EpochInfoTrait, InternalStakerInfoLatestTrait};
-use staking::staking::staking::Staking;
-use staking::types::{
+use staking_test::staking::objects::{EpochInfo, EpochInfoTrait, InternalStakerInfoLatestTrait};
+use staking_test::staking::staking::Staking;
+use staking_test::types::{
     Amount, Commission, Index, InternalPoolMemberInfoLatest, InternalStakerInfoLatest,
 };
-use staking::utils::{
+use staking_test::utils::{
     compute_commission_amount_rounded_down, compute_commission_amount_rounded_up,
     compute_rewards_rounded_down, compute_rewards_rounded_up,
 };
@@ -53,9 +53,9 @@ use starkware_utils_testing::test_utils::{
 
 pub mod constants {
     use core::cmp::max;
-    use staking::constants::STRK_IN_FRIS;
-    use staking::staking::objects::{EpochInfo, EpochInfoTrait};
-    use staking::types::{Amount, Commission, Index};
+    use staking_test::constants::STRK_IN_FRIS;
+    use staking_test::staking::objects::{EpochInfo, EpochInfoTrait};
+    use staking_test::types::{Amount, Commission, Index};
     use starknet::class_hash::ClassHash;
     use starknet::{ContractAddress, get_block_number};
 

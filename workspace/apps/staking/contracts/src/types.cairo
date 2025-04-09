@@ -1,5 +1,5 @@
-use staking::pool::objects::InternalPoolMemberInfoV1;
-use staking::staking::objects::InternalStakerInfoV1;
+use staking_test::pool::objects::InternalPoolMemberInfoV1;
+use staking_test::staking::objects::InternalStakerInfoV1;
 
 // If we change the type, make sure the errors still show the right type.
 pub type Commission = u16;

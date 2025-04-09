@@ -1,7 +1,7 @@
 use core::num::traits::zero::Zero;
-use staking::pool::objects::InternalPoolMemberInfoV1;
-use staking::pool::pool_member_balance_trace::trace::PoolMemberCheckpointTrait;
-use staking::types::{Amount, Commission, Index, InternalPoolMemberInfoLatest};
+use staking_test::pool::objects::InternalPoolMemberInfoV1;
+use staking_test::pool::pool_member_balance_trace::trace::PoolMemberCheckpointTrait;
+use staking_test::types::{Amount, Commission, Index, InternalPoolMemberInfoLatest};
 use starknet::ContractAddress;
 use starkware_utils::types::time::time::Timestamp;
 
@@ -96,7 +96,7 @@ pub trait IPoolMigration<TContractState> {
 }
 
 pub mod Events {
-    use staking::types::Amount;
+    use staking_test::types::Amount;
     use starknet::ContractAddress;
     use starkware_utils::types::time::time::Timestamp;
 
@@ -186,7 +186,8 @@ pub struct PoolMemberInfo {
     pub unpool_time: Option<Timestamp>,
 }
 
-#[cfg(test)]
+// #[cfg(test)]
+#[cfg(target: "test")]
 #[generate_trait]
 pub impl PoolMemberInfoIntoInternalPoolMemberInfoV1Impl of PoolMemberInfoIntoInternalPoolMemberInfoV1Trait {
     fn to_internal(self: PoolMemberInfo) -> InternalPoolMemberInfoV1 {

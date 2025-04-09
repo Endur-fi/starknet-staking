@@ -1,7 +1,7 @@
-use staking::minting_curve::errors::Error as MintingError;
-use staking::pool::errors::Error as PoolError;
-use staking::reward_supplier::errors::Error as RewardsSupplierError;
-use staking::staking::errors::Error as StakingError;
+use staking_test::minting_curve::errors::Error as MintingError;
+use staking_test::pool::errors::Error as PoolError;
+use staking_test::reward_supplier::errors::Error as RewardsSupplierError;
+use staking_test::staking::errors::Error as StakingError;
 use starkware_utils::errors::{Describable, ErrorDisplay};
 
 #[derive(Drop)]

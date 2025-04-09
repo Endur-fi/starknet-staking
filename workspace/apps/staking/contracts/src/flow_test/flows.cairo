@@ -1,23 +1,23 @@
 use core::num::traits::Zero;
-use staking::constants::STRK_IN_FRIS;
-use staking::errors::GenericError;
-use staking::flow_test::utils::MainnetClassHashes::MAINNET_POOL_CLASS_HASH_V0;
-use staking::flow_test::utils::{
+use staking_test::constants::STRK_IN_FRIS;
+use staking_test::errors::GenericError;
+use staking_test::flow_test::utils::MainnetClassHashes::MAINNET_POOL_CLASS_HASH_V0;
+use staking_test::flow_test::utils::{
     Delegator, FlowTrait, RewardSupplierTrait, Staker, StakingTrait, SystemDelegatorTrait,
     SystemPoolTrait, SystemStakerTrait, SystemState, SystemTrait, SystemType,
     upgrade_implementation,
 };
-use staking::pool::interface::{PoolMemberInfo, PoolMemberInfoIntoInternalPoolMemberInfoV1Trait};
-use staking::staking::errors::Error as StakingError;
-use staking::staking::interface::StakerInfo;
-use staking::test_utils::constants::UPGRADE_GOVERNOR;
-use staking::test_utils::{
+use staking_test::pool::interface::{PoolMemberInfo, PoolMemberInfoIntoInternalPoolMemberInfoV1Trait};
+use staking_test::staking::errors::Error as StakingError;
+use staking_test::staking::interface::StakerInfo;
+use staking_test::test_utils::constants::UPGRADE_GOVERNOR;
+use staking_test::test_utils::{
     calculate_pool_member_rewards, calculate_pool_rewards, calculate_pool_rewards_with_pool_balance,
     declare_pool_contract, declare_pool_eic_contract, deserialize_option, pool_update_rewards,
     staker_update_rewards,
 };
-use staking::types::{Amount, Commission, Index};
-use staking::utils::{compute_global_index_diff, compute_rewards_rounded_down};
+use staking_test::types::{Amount, Commission, Index};
+use staking_test::utils::{compute_global_index_diff, compute_rewards_rounded_down};
 use starknet::{ClassHash, ContractAddress, Store};
 use starkware_utils::components::replaceability::interface::{EICData, ImplementationData};
 use starkware_utils::errors::{Describable, ErrorDisplay};
