@@ -176,7 +176,7 @@ pub impl InternalPoolMemberInfoLatestIntoPoolMemberInfo of Into<
     }
 }
 
-#[cfg(test)]
+/// #[cfg(feature: 'staking_test_mods')]
 #[generate_trait]
 pub impl VInternalPoolMemberInfoTestImpl of VInternalPoolMemberInfoTestTrait {
     fn new_v0(
@@ -208,7 +208,7 @@ pub impl VInternalPoolMemberInfoTestImpl of VInternalPoolMemberInfoTestTrait {
     }
 }
 
-#[cfg(test)]
+/// #[cfg(feature: 'staking_test_mods')]
 #[generate_trait]
 pub impl InternalPoolMemberInfoTestImpl of InternalPoolMemberInfoTestTrait {
     fn new(
@@ -238,7 +238,7 @@ pub impl InternalPoolMemberInfoTestImpl of InternalPoolMemberInfoTestTrait {
 ///
 /// The `#[rename("pool_member_info")]` attribute ensures the variable name remains consistent,
 /// as it is part of the storage path calculation.
-#[cfg(test)]
+/// #[cfg(feature: 'staking_test_mods')]
 #[starknet::contract]
 pub mod VStorageContractTest {
     use starknet::storage::Map;
@@ -253,7 +253,7 @@ pub mod VStorageContractTest {
     }
 }
 
-#[cfg(test)]
+/// #[cfg(feature: 'staking_test_mods')]
 mod internal_pool_member_info_latest_tests {
     use core::num::traits::zero::Zero;
     use staking_test::pool::interface::PoolMemberInfo;

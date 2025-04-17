@@ -186,8 +186,8 @@ pub struct PoolMemberInfo {
     pub unpool_time: Option<Timestamp>,
 }
 
-// #[cfg(test)]
-#[cfg(target: "test")]
+// /// #[cfg(feature: 'staking_test_mods')]
+/// #[cfg(feature: 'staking_test_mods')]
 #[generate_trait]
 pub impl PoolMemberInfoIntoInternalPoolMemberInfoV1Impl of PoolMemberInfoIntoInternalPoolMemberInfoV1Trait {
     fn to_internal(self: PoolMemberInfo) -> InternalPoolMemberInfoV1 {

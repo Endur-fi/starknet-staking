@@ -158,7 +158,7 @@ impl PrivateEpochInfoImpl of PrivateEpochInfoTrait {
     }
 }
 
-#[cfg(test)]
+/// #[cfg(feature: 'staking_test_mods')]
 mod epoch_info_tests {
     use core::num::traits::Zero;
     use snforge_std::start_cheat_block_number_global;
@@ -326,7 +326,7 @@ impl InternalStakerInfoLatestIntoStakerInfo of Into<InternalStakerInfoLatest, St
     }
 }
 
-#[cfg(test)]
+/// #[cfg(feature: 'staking_test_mods')]
 pub impl StakerInfoIntoInternalStakerInfoV1 of Into<StakerInfo, InternalStakerInfoV1> {
     fn into(self: StakerInfo) -> InternalStakerInfoV1 {
         InternalStakerInfoV1 {
@@ -343,7 +343,7 @@ pub impl StakerInfoIntoInternalStakerInfoV1 of Into<StakerInfo, InternalStakerIn
     }
 }
 
-#[cfg(test)]
+/// #[cfg(feature: 'staking_test_mods')]
 #[generate_trait]
 pub impl VersionedInternalStakerInfoTestImpl of VersionedInternalStakerInfoTestTrait {
     fn new_v0(
@@ -369,7 +369,7 @@ pub impl VersionedInternalStakerInfoTestImpl of VersionedInternalStakerInfoTestT
     }
 }
 
-#[cfg(test)]
+/// #[cfg(feature: 'staking_test_mods')]
 #[generate_trait]
 pub impl InternalStakerInfoTestImpl of InternalStakerInfoTestTrait {
     fn new(
@@ -399,7 +399,7 @@ pub impl InternalStakerInfoTestImpl of InternalStakerInfoTestTrait {
 ///
 /// The `#[rename("staker_info")]` attribute ensures the variable name remains consistent,
 /// as it is part of the storage path calculation.
-#[cfg(test)]
+/// #[cfg(feature: 'staking_test_mods')]
 #[starknet::contract]
 pub mod VersionedStorageContractTest {
     use starknet::storage::Map;

@@ -1,9 +1,9 @@
-// #[cfg(test)]
-#[cfg(test)]
+// /// #[cfg(feature: 'staking_test_mods')]
+/// #[cfg(feature: 'staking_test_mods')]
 pub mod flows;
-// #[cfg(test)]
-#[cfg(test)]
+// /// #[cfg(feature: 'staking_test_mods')]
+/// #[cfg(feature: 'staking_test_mods')]
 mod test;
-// #[cfg(test)]
-#[cfg(target: "test")]
+// /// #[cfg(feature: 'staking_test_mods')]
+/// #[cfg(feature: 'staking_test_mods')]
 pub mod utils;

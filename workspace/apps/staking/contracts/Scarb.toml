@@ -6,14 +6,14 @@ edition = "2023_11"
 [dependencies]
 starknet.workspace = true
 openzeppelin.workspace = true
-starkware_utils.workspace = true
 # snforge_scarb_plugin.workspace = true
 # staking = { git = "https://github.com/starkware-libs/starknet-staking", rev = "bf497d69e8401f7567b20f88f99caf5532a29fa5" }
+assert_macros.workspace = true
 snforge_std.workspace = true
 starkware_utils_testing.workspace = true
+starkware_utils.workspace = true
 
 [dev-dependencies]
-assert_macros.workspace = true
 
 
 [profile.dev.cairo]
@@ -47,6 +47,6 @@ sort-module-level-items = true
 [tool]
 snforge.workspace = true
 
-# [features]
-# default = ["test"]
-# test = []
+[features]
+default = ["staking_test_mods"]
+staking_test_mods = []

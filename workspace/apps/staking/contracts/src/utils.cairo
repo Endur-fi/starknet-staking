@@ -122,7 +122,7 @@ pub impl CheckedIERC20DispatcherImpl of CheckedIERC20DispatcherTrait {
     }
 }
 
-#[cfg(test)]
+/// #[cfg(feature: 'staking_test_mods')]
 mod tests {
     use core::num::traits::zero::Zero;
     use super::{BASE_VALUE, STRK_IN_FRIS, compute_global_index_diff};

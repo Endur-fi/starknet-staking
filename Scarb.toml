@@ -27,8 +27,6 @@ name = "MAINNET_LATEST"
 url = "https://starknet-mainnet.public.blastapi.io/rpc/v0_7"
 block_id.tag = "latest"
 
-[[target.test]]
-
 # [features]
-# default = ["test"]
-# test = []
+# default = ["staking_test_mods"]
+# staking_test_mods = []
