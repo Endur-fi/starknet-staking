@@ -1,4 +1,4 @@
-use staking_test::types::{Amount, Epoch, Index, Inflation};
+use staking_test::types::{Amount, Epoch, Index, Inflation, Version};
 use starkware_utils::constants::WEEK;
 use starkware_utils::types::time::time::TimeDelta;
 
@@ -10,4 +10,5 @@ pub const DEFAULT_C_NUM: Inflation = 160;
 pub const MAX_C_NUM: Inflation = 500;
 pub const C_DENOM: Inflation = 10_000;
 pub const MIN_ATTESTATION_WINDOW: u16 = 11;
-pub const FIRST_VALID_EPOCH: Epoch = 1; // Rewards start from epoch 1.
+pub const STARTING_EPOCH: Epoch = 0;
+pub const PREV_CONTRACT_VERSION: Version = '0';

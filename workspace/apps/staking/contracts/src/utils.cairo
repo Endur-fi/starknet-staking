@@ -68,13 +68,13 @@ pub fn compute_commission_amount_rounded_up(
         .expect_with_err(err: GenericError::COMMISSION_ISNT_AMOUNT_TYPE)
 }
 
-pub fn compute_global_index_diff(staking_rewards: Amount, total_stake: Amount) -> Index {
+pub fn compute_rewards_per_strk(staking_rewards: Amount, total_stake: Amount) -> Index {
     // Return zero if the total stake is too small, to avoid overflow below.
     if total_stake < STRK_IN_FRIS {
         return Zero::zero();
     }
     mul_wide_and_div(lhs: staking_rewards, rhs: BASE_VALUE, div: total_stake)
-        .expect_with_err(err: StakingError::GLOBAL_INDEX_DIFF_COMPUTATION_OVERFLOW)
+        .expect_with_err(err: StakingError::REWARDS_COMPUTATION_OVERFLOW)
 }
 
 // Compute the rewards from the amount and interest.
@@ -125,12 +125,12 @@ pub impl CheckedIERC20DispatcherImpl of CheckedIERC20DispatcherTrait {
 /// #[cfg(feature: 'staking_test_mods')]
 mod tests {
     use core::num::traits::zero::Zero;
-    use super::{BASE_VALUE, STRK_IN_FRIS, compute_global_index_diff};
+    use super::{BASE_VALUE, STRK_IN_FRIS, compute_rewards_per_strk};
 
     #[test]
-    fn test_compute_global_index_diff() {
-        assert!(compute_global_index_diff(STRK_IN_FRIS, STRK_IN_FRIS) == BASE_VALUE);
-        assert!(compute_global_index_diff(STRK_IN_FRIS, STRK_IN_FRIS - 1) == Zero::zero());
+    fn test_compute_rewards_per_strk() {
+        assert!(compute_rewards_per_strk(STRK_IN_FRIS, STRK_IN_FRIS) == BASE_VALUE);
+        assert!(compute_rewards_per_strk(STRK_IN_FRIS, STRK_IN_FRIS - 1) == Zero::zero());
     }
 }
 
