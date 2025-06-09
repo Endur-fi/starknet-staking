@@ -15,8 +15,10 @@ use core::poseidon::PoseidonTrait;
 use core::traits::Into;
 use openzeppelin::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use snforge_std::{
-    ContractClassTrait, DeclareResultTrait, start_cheat_block_number_global, test_address,
+    ContractClassTrait, DeclareResultTrait, start_cheat_block_hash_global,
+    start_cheat_block_number_global, test_address,
 };
+use staking_test::attestation::interface::{IAttestationDispatcher, IAttestationDispatcherTrait};
 use staking_test::constants::{
     C_DENOM, DEFAULT_C_NUM, DEFAULT_EXIT_WAIT_WINDOW, MIN_ATTESTATION_WINDOW, STARTING_EPOCH,
 };
@@ -63,6 +65,7 @@ pub mod constants {
     use staking_test::types::{Amount, Commission, Index};
     use starknet::class_hash::ClassHash;
     use starknet::{ContractAddress, get_block_number};
+    use starkware_utils::types::time::time::Timestamp;
 
     pub const STAKER_INITIAL_BALANCE: Amount = 1000000 * STRK_IN_FRIS;
     pub const POOL_MEMBER_INITIAL_BALANCE: Amount = 10000 * STRK_IN_FRIS;
@@ -84,6 +87,7 @@ pub mod constants {
     // duration of  one epoch in seconds
     pub const EPOCH_DURATION: u32 = 9000;
     pub const STARTING_BLOCK_OFFSET: u64 = 0;
+    pub(crate) const UNPOOL_TIME: Timestamp = Timestamp { seconds: 1 };
 
     pub fn CALLER_ADDRESS() -> ContractAddress {
         'CALLER_ADDRESS'.try_into().unwrap()
@@ -169,6 +173,9 @@ pub mod constants {
     pub fn NON_SECURITY_AGENT() -> ContractAddress {
         'NON_SECURITY_AGENT'.try_into().unwrap()
     }
+    pub fn NON_APP_GOVERNOR() -> ContractAddress {
+        'NON_APP_GOVERNOR'.try_into().unwrap()
+    }
     pub fn STRK_TOKEN_ADDRESS() -> ContractAddress {
         0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d.try_into().unwrap()
     }
@@ -214,6 +221,12 @@ pub mod constants {
             epoch_length: EPOCH_LENGTH,
             starting_block: max(EPOCH_STARTING_BLOCK, get_block_number()),
         )
+    }
+    pub(crate) fn MAINNET_SECURITY_COUNSEL_ADDRESS() -> ContractAddress {
+        0x663cc699d9c51b7d4d434e06f5982692167546ce525d9155edb476ac9a117d6.try_into().unwrap()
+    }
+    pub fn BTC_TOKEN_ADDRESS() -> ContractAddress {
+        'BTC_TOKEN_ADDRESS'.try_into().unwrap()
     }
 }
 pub fn initialize_staking_state_from_cfg(
@@ -384,6 +397,11 @@ pub fn set_default_roles(staking_contract: ContractAddress, cfg: StakingInitConf
         contract: staking_contract,
         account: cfg.test_info.upgrade_governor,
         governance_admin: cfg.test_info.governance_admin,
+    );
+    set_account_as_app_governor(
+        contract: staking_contract,
+        account: cfg.test_info.app_governor,
+        app_role_admin: cfg.test_info.app_role_admin,
     );
 }
 
@@ -596,12 +614,41 @@ pub fn enter_delegation_pool_for_testing_using_dispatcher(
         )
 }
 
+pub fn add_to_delegation_pool_with_pool_member(
+    pool_contract: ContractAddress,
+    pool_member: ContractAddress,
+    amount: Amount,
+    token_address: ContractAddress,
+) {
+    approve(owner: pool_member, spender: pool_contract, :amount, :token_address);
+    let pool_dispatcher = IPoolDispatcher { contract_address: pool_contract };
+    cheat_caller_address_once(contract_address: pool_contract, caller_address: pool_member);
+    pool_dispatcher.add_to_delegation_pool(:pool_member, :amount);
+}
+
 pub fn claim_rewards_for_pool_member(
     pool_contract: ContractAddress, pool_member: ContractAddress,
 ) -> Amount {
     cheat_caller_address_once(contract_address: pool_contract, caller_address: pool_member);
     let pool_dispatcher = IPoolDispatcher { contract_address: pool_contract };
     pool_dispatcher.claim_rewards(:pool_member)
+}
+
+pub(crate) fn update_rewards_from_staking_contract_for_testing(
+    cfg: StakingInitConfig, pool_contract: ContractAddress, rewards: Amount, pool_balance: Amount,
+) {
+    let token_address = cfg.staking_contract_info.token_address;
+    fund(
+        sender: cfg.test_info.owner_address,
+        recipient: pool_contract,
+        amount: rewards,
+        :token_address,
+    );
+    cheat_caller_address_once(
+        contract_address: pool_contract, caller_address: cfg.test_info.staking_contract,
+    );
+    let pool_dispatcher = IPoolDispatcher { contract_address: pool_contract };
+    pool_dispatcher.update_rewards_from_staking_contract(:rewards, :pool_balance);
 }
 
 /// *****WARNING*****
@@ -1174,4 +1221,14 @@ pub fn advance_block_into_attestation_window(cfg: StakingInitConfig, stake: Amou
         attestation_window: MIN_ATTESTATION_WINDOW,
     );
     advance_block_number_global(blocks: block_offset + MIN_ATTESTATION_WINDOW.into());
+}
+
+pub fn cheat_target_attestation_block_hash(cfg: StakingInitConfig, block_hash: felt252) {
+    let attestation_contract = cfg.test_info.attestation_contract;
+    let attestation_dispatcher = IAttestationDispatcher { contract_address: attestation_contract };
+    let operational_address = cfg.staker_info.operational_address;
+    let target_attestation_block = attestation_dispatcher
+        .get_current_epoch_target_attestation_block(:operational_address);
+
+    start_cheat_block_hash_global(block_number: target_attestation_block, :block_hash);
 }

@@ -44,7 +44,7 @@ pub trait IStaking<TContractState> {
     ) -> UndelegateIntentValue;
     fn declare_operational_address(ref self: TContractState, staker_address: ContractAddress);
     fn change_operational_address(ref self: TContractState, operational_address: ContractAddress);
-    fn update_commission(ref self: TContractState, commission: Commission);
+    fn set_commission(ref self: TContractState, commission: Commission);
     fn set_commission_commitment(
         ref self: TContractState, max_commission: Commission, expiration_epoch: Epoch,
     );
@@ -182,6 +182,30 @@ pub trait IStakingConfig<TContractState> {
 }
 
 #[starknet::interface]
+pub trait IStakingTokenManager<TContractState> {
+    /// Add a new token to the staking contract.
+    ///
+    /// **Important note:** This function should be called only a limited number of times.
+    /// Adding too many tokens can lead to unbounded complexity and potential performance issues.
+    /// The token set is intended to remain fixed and small, ensuring all loops over it are safely
+    /// bounded.
+    /// It is the security admin's responsibility to enforce this token limit.
+    fn add_token(ref self: TContractState, token_address: ContractAddress);
+    /// Enable token for getting rewards.
+    ///
+    /// **Important note:** This function takes effect immediately upon execution.
+    /// It impacts the current epoch’s rewards, potentially increasing or decreasing them,
+    /// and may cause uneven distribution of rewards among stakers for this epoch.
+    fn enable_token(ref self: TContractState, token_address: ContractAddress);
+    /// Disable token for getting rewards.
+    ///
+    /// **Important note:** This function takes effect immediately upon execution.
+    /// It impacts the current epoch’s rewards, potentially increasing or decreasing them,
+    /// and may cause uneven distribution of rewards among stakers for this epoch.
+    fn disable_token(ref self: TContractState, token_address: ContractAddress);
+}
+
+#[starknet::interface]
 pub trait IStakingAttestation<TContractState> {
     fn update_rewards_from_attestation_contract(
         ref self: TContractState, staker_address: ContractAddress,
@@ -227,8 +251,6 @@ pub mod Events {
     pub struct CommissionChanged {
         #[key]
         pub staker_address: ContractAddress,
-        #[key]
-        pub pool_contract: ContractAddress,
         pub new_commission: Commission,
         pub old_commission: Commission,
     }

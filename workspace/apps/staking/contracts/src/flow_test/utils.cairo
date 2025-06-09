@@ -6,7 +6,10 @@ use MainnetClassHashes::{
 use core::num::traits::zero::Zero;
 use core::traits::Into;
 use openzeppelin::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
-use snforge_std::{ContractClassTrait, DeclareResultTrait, start_cheat_block_timestamp_global};
+use snforge_std::{
+    ContractClassTrait, DeclareResultTrait, start_cheat_block_hash_global,
+    start_cheat_block_number_global, start_cheat_block_timestamp_global,
+};
 use staking_test::attestation::interface::{IAttestationDispatcher, IAttestationDispatcherTrait};
 use staking_test::constants::MIN_ATTESTATION_WINDOW;
 use staking_test::minting_curve::interface::IMintingCurveDispatcher;
@@ -31,8 +34,8 @@ use staking_test::staking::interface_v0::{
 };
 use staking_test::staking::objects::{EpochInfo, EpochInfoTrait};
 use staking_test::test_utils::constants::{
-    EPOCH_DURATION, EPOCH_LENGTH, EPOCH_STARTING_BLOCK, STARTING_BLOCK_OFFSET, STRK_TOKEN_ADDRESS,
-    UPGRADE_GOVERNOR,
+    EPOCH_DURATION, EPOCH_LENGTH, EPOCH_STARTING_BLOCK, MAINNET_SECURITY_COUNSEL_ADDRESS,
+    STARTING_BLOCK_OFFSET, STRK_TOKEN_ADDRESS, UPGRADE_GOVERNOR,
 };
 use staking_test::test_utils::{
     StakingInitConfig, calculate_block_offset, declare_pool_contract, declare_pool_eic_contract,
@@ -50,8 +53,9 @@ use starkware_utils::constants::{NAME, SYMBOL};
 use starkware_utils::types::time::time::{Time, TimeDelta, Timestamp};
 use starkware_utils_testing::test_utils::{
     Deployable, TokenConfig, TokenState, TokenTrait, advance_block_number_global,
-    cheat_caller_address_once, set_account_as_app_role_admin, set_account_as_security_admin,
-    set_account_as_security_agent, set_account_as_token_admin, set_account_as_upgrade_governor,
+    cheat_caller_address_once, set_account_as_app_governor, set_account_as_app_role_admin,
+    set_account_as_security_admin, set_account_as_security_agent, set_account_as_token_admin,
+    set_account_as_upgrade_governor,
 };
 
 mod MainnetAddresses {
@@ -96,6 +100,7 @@ pub struct StakingRoles {
     pub security_agent: ContractAddress,
     pub app_role_admin: ContractAddress,
     pub token_admin: ContractAddress,
+    pub app_governor: ContractAddress,
 }
 
 /// The `StakingConfig` struct represents the configuration settings for the staking contract.
@@ -243,6 +248,11 @@ pub impl StakingImpl of StakingTrait {
             account: self.roles.token_admin,
             app_role_admin: self.roles.app_role_admin,
         );
+        set_account_as_app_governor(
+            contract: self.address,
+            account: self.roles.app_governor,
+            app_role_admin: self.roles.app_role_admin,
+        );
     }
 
     fn get_pool(self: StakingState, staker: Staker) -> ContractAddress {
@@ -307,7 +317,7 @@ pub impl StakingImpl of StakingTrait {
 
     fn set_epoch_info(self: StakingState, epoch_duration: u32, epoch_length: u32) {
         cheat_caller_address_once(
-            contract_address: self.address, caller_address: self.roles.token_admin,
+            contract_address: self.address, caller_address: self.roles.app_governor,
         );
         let staking_config_dispatcher = IStakingConfigDispatcher { contract_address: self.address };
         staking_config_dispatcher.set_epoch_info(:epoch_duration, :epoch_length);
@@ -669,6 +679,7 @@ pub impl SystemConfigImpl of SystemConfigTrait {
                 security_agent: cfg.test_info.security_agent,
                 app_role_admin: cfg.test_info.app_role_admin,
                 token_admin: cfg.test_info.token_admin,
+                app_governor: cfg.test_info.app_governor,
             },
         };
         let minting_curve = MintingCurveConfig {
@@ -824,8 +835,11 @@ pub impl SystemImpl<
     }
 
     fn set_pool_for_upgrade(ref self: SystemState<TTokenState>, pool_address: ContractAddress) {
+        println!("Setting pool for upgrade: ");
         let pool_contract_admin = self.staking.get_pool_contract_admin();
+        println!("Pool contract admin: {:?}", pool_contract_admin);
         let upgrade_governor = UPGRADE_GOVERNOR();
+        println!("Upgrade governor: {:?}", upgrade_governor);
         set_account_as_upgrade_governor(
             contract: pool_address,
             account: upgrade_governor,
@@ -860,6 +874,23 @@ pub impl SystemImpl<
             attestation_window: MIN_ATTESTATION_WINDOW,
         );
         advance_block_number_global(blocks: block_offset + MIN_ATTESTATION_WINDOW.into());
+    }
+}
+
+#[generate_trait]
+impl InternalSystemImpl<
+    TTokenState, +TokenTrait<TTokenState>, +Drop<TTokenState>, +Copy<TTokenState>,
+> of InternalSystemTrait<TTokenState> {
+    fn cheat_target_attestation_block_hash(
+        self: SystemState<TTokenState>, staker: Staker, block_hash: felt252,
+    ) {
+        let target_attestation_block = self
+            .attestation
+            .unwrap()
+            .get_current_epoch_target_attestation_block(
+                operational_address: staker.operational.address,
+            );
+        start_cheat_block_hash_global(block_number: target_attestation_block, :block_hash);
     }
 }
 
@@ -969,11 +1000,11 @@ pub impl SystemStakerImpl<
         self.staking.dispatcher().claim_rewards(staker_address: staker.staker.address)
     }
 
-    fn update_commission(self: SystemState<TTokenState>, staker: Staker, commission: Commission) {
+    fn set_commission(self: SystemState<TTokenState>, staker: Staker, commission: Commission) {
         cheat_caller_address_once(
             contract_address: self.staking.address, caller_address: staker.staker.address,
         );
-        self.staking.dispatcher().update_commission(:commission)
+        self.staking.dispatcher().set_commission(:commission)
     }
 
     fn staker_info_v1(self: SystemState<TTokenState>, staker: Staker) -> StakerInfoV1 {
@@ -1002,11 +1033,13 @@ pub impl SystemStakerImpl<
     }
 
     fn attest(self: SystemState<TTokenState>, staker: Staker) {
+        let block_hash = Zero::zero();
+        self.cheat_target_attestation_block_hash(:staker, :block_hash);
         cheat_caller_address_once(
             contract_address: self.attestation.unwrap().address,
             caller_address: staker.operational.address,
         );
-        self.attestation.unwrap().dispatcher().attest(block_hash: Zero::zero());
+        self.attestation.unwrap().dispatcher().attest(:block_hash);
     }
 
     fn advance_epoch_and_attest(self: SystemState<TTokenState>, staker: Staker) {
@@ -1286,7 +1319,6 @@ pub impl SystemReplaceabilityImpl of SystemReplaceabilityTrait {
         self.staking.pause();
         self.upgrade_staking_implementation();
         self.upgrade_reward_supplier_implementation();
-        self.upgrade_minting_curve_implementation();
         if let Option::Some(pool) = self.pool {
             self.upgrade_pool_implementation(:pool);
         }
@@ -1307,6 +1339,7 @@ pub impl SystemReplaceabilityImpl of SystemReplaceabilityTrait {
                 STARTING_BLOCK_OFFSET.into(),
                 declare_pool_contract().into(),
                 self.attestation.unwrap().address.into(),
+                MAINNET_SECURITY_COUNSEL_ADDRESS().into(),
             ]
                 .span(),
         };
@@ -1329,18 +1362,6 @@ pub impl SystemReplaceabilityImpl of SystemReplaceabilityTrait {
             contract_address: self.reward_supplier.address,
             :implementation_data,
             upgrade_governor: self.reward_supplier.roles.upgrade_governor,
-        );
-    }
-
-    /// Upgrades the minting curve contract in the system state with a local implementation.
-    fn upgrade_minting_curve_implementation(self: SystemState<STRKTokenState>) {
-        let implementation_data = ImplementationData {
-            impl_hash: declare_minting_curve_contract(), eic_data: Option::None, final: false,
-        };
-        upgrade_implementation(
-            contract_address: self.minting_curve.address,
-            :implementation_data,
-            upgrade_governor: self.minting_curve.roles.upgrade_governor,
         );
     }
 
@@ -1410,15 +1431,24 @@ pub enum SystemType {
 }
 
 pub trait FlowTrait<
-    TFlow, TTokenState, +TokenTrait<TTokenState>, +Drop<TTokenState>, +Copy<TTokenState>,
+    TFlow,
+    TTokenState,
+    +Drop<TFlow>,
+    +TokenTrait<TTokenState>,
+    +Drop<TTokenState>,
+    +Copy<TTokenState>,
 > {
-    fn get_pool_address(self: TFlow) -> Option<ContractAddress>;
-    fn get_staker_address(self: TFlow) -> Option<ContractAddress>;
-    fn setup(ref self: TFlow, ref system: SystemState<TTokenState>);
+    fn get_pool_address(self: TFlow) -> Option<ContractAddress> {
+        Option::None
+    }
+    fn get_staker_address(self: TFlow) -> Option<ContractAddress> {
+        Option::None
+    }
+    fn setup(ref self: TFlow, ref system: SystemState<TTokenState>) {}
     fn test(self: TFlow, ref system: SystemState<TTokenState>, system_type: SystemType);
 }
 
-pub fn test_flow_local<TFlow, +FlowTrait<TFlow, TokenState>, +Drop<TFlow>, +Copy<TFlow>>(
+pub fn test_flow_local<TFlow, +Drop<TFlow>, +Copy<TFlow>, +FlowTrait<TFlow, TokenState>>(
     flow: TFlow,
 ) {
     let mut system = SystemFactoryTrait::local_system();
@@ -1426,7 +1456,7 @@ pub fn test_flow_local<TFlow, +FlowTrait<TFlow, TokenState>, +Drop<TFlow>, +Copy
 }
 
 pub fn test_flow_mainnet<
-    TFlow, +FlowTrait<TFlow, STRKTokenState>, +Drop<TFlow>, +Copy<TFlow>,
+    TFlow, +Drop<TFlow>, +Copy<TFlow>, +FlowTrait<TFlow, STRKTokenState>,
 >(
     ref flow: TFlow,
 ) {
@@ -1441,4 +1471,20 @@ pub fn test_flow_mainnet<
     }
     system.deploy_attestation_and_upgrade_contracts_implementation();
     flow.test(ref :system, system_type: SystemType::Mainnet);
+}
+
+#[test]
+fn test_advance_epoch() {
+    let mut system = SystemFactoryTrait::local_system();
+
+    start_cheat_block_number_global(block_number: EPOCH_STARTING_BLOCK - 1);
+    system.advance_epoch();
+    assert!(get_block_number() == EPOCH_STARTING_BLOCK);
+
+    system.advance_epoch();
+    let epoch_len_in_blocks = system.staking.get_epoch_info().epoch_len_in_blocks();
+    assert!(get_block_number() == EPOCH_STARTING_BLOCK + epoch_len_in_blocks.into());
+
+    system.advance_epoch();
+    assert!(get_block_number() == EPOCH_STARTING_BLOCK + (epoch_len_in_blocks * 2).into());
 }

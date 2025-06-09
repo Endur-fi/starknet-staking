@@ -24,7 +24,7 @@
     - [switch\_staking\_delegation\_pool](#switch_staking_delegation_pool)
     - [change\_reward\_address](#change_reward_address)
     - [set\_open\_for\_delegation](#set_open_for_delegation)
-    - [update\_commission](#update_commission)
+    - [set\_commission](#set_commission)
     - [set\_commission\_commitment](#set_commission_commitment)
     - [get\_staker\_commission\_commitment](#get_staker_commission_commitment)
     - [staker\_info](#staker_info)
@@ -49,6 +49,9 @@
     - [set\_reward\_supplier](#set_reward_supplier)
     - [set\_epoch\_info](#set_epoch_info)
     - [staker\_migration](#staker_migration)
+    - [add\_token](#add_token)
+    - [enable\_token](#enable_token)
+    - [disable\_token](#disable_token)
   - [Events](#events)
     - [Stake Balance Changed](#stake-balance-changed)
     - [New Delegation Pool](#new-delegation-pool)
@@ -260,7 +263,7 @@ classDiagram
     change_reward_address()
     change_operational_address()
     set_open_for_delegation()
-    update_commission()
+    set_commission()
     set_commission_commitment()
     staker_info()
     get_staker_info()
@@ -285,6 +288,9 @@ classDiagram
     unpause()
     get_current_epoch()
     internal_staker_info()
+    add_token()
+    enable_token()
+    disable_token()
   }
   class DelegationPoolContract{
     map < pool_member_address, PoolMemberInfo >
@@ -591,8 +597,8 @@ fn unstake_intent(ref self: ContractState) -> TimeStamp
 ```
 #### description <!-- omit from toc -->
 Inform of the intent to exit the stake. 
-This will remove the funds from the stake, and block the staker's ability to attest starting from the current epoch.
-This will also start the exit window timeout.
+This will remove the funds from the staking protocol, initiate an exit window timeout, and block the staker's ability to attest starting from the current epoch.
+This will also block the staker's ability to re-stake from the same address in the future.
 Return the time in which the staker will be able to unstake.
 #### emits <!-- omit from toc -->
 1. [Staker Exit Intent](#staker-exit-intent)
@@ -854,37 +860,36 @@ Only staker address.
 1. Generate pool contract for staker.
 2. Register pool.
 
-### update_commission
+### set_commission
 ```rust
-fn update_commission(
+fn set_commission(
     ref self: ContractState, 
     commission: Commission,
 )
 ```
 #### description <!-- omit from toc -->
-Update the commission.
+Initialize or update the commission.
 #### emits <!-- omit from toc -->
 [Commission Changed](#commission-changed)
 #### errors <!-- omit from toc -->
 1. [CONTRACT\_IS\_PAUSED](#contract_is_paused)
 2. [STAKER\_NOT\_EXISTS](#staker_not_exists)
 3. [UNSTAKE\_IN\_PROGRESS](#unstake_in_progress)
-4. [MISSING\_POOL\_CONTRACT](#missing_pool_contract)
-5. [INVALID\_COMMISSION](#invalid_commission)
-6. [INVALID\_COMMISSION\_WITH\_COMMITMENT](#invalid_commission_with_commitment)
-7. [COMMISSION\_COMMITMENT\_EXPIRED](#commission_commitment_expired)
-8. [COMMISSION\_OUT\_OF\_RANGE](#commission_out_of_range)
+4. [INVALID\_COMMISSION](#invalid_commission)
+5. [INVALID\_COMMISSION\_WITH\_COMMITMENT](#invalid_commission_with_commitment)
+6. [COMMISSION\_COMMITMENT\_EXPIRED](#commission_commitment_expired)
+7. [COMMISSION\_OUT\_OF\_RANGE](#commission_out_of_range)
 #### pre-condition <!-- omit from toc -->
 1. Staking contract is unpaused.
 2. Staker exist in the contract.
-3. Delegation pool exist for the staker.
-4. If there is no active commission commitment, `commission` must be lower than the current 
+3. If there is no active commission commitment, `commission` must be lower than the current 
 commission.
-5. `commission` is not above the maximum commission for staking.
+4. `commission` is not above the maximum commission for staking.
 #### access control <!-- omit from toc -->
 Only staker address.
 #### logic <!-- omit from toc -->
-1. Update the commission.
+1. If commission is not initialized, initialize the commission.
+2. If commission is already initialized, update the commission.
 
 ### set_commission_commitment
 ```rust
@@ -1069,14 +1074,14 @@ Return general parameters of the contract.
 get_total_stake(self: @ContractState) -> Amount
 ```
 #### description <!-- omit from toc -->
-Return the latest total stake amount (which could be of the next epoch).
+Return the latest total STRK stake amount (which could be of the next epoch).
 #### emits <!-- omit from toc -->
 #### errors <!-- omit from toc -->
 #### pre-condition <!-- omit from toc -->
 #### access control <!-- omit from toc -->
 Any address can execute.
 #### logic <!-- omit from toc -->
-1. Return the total stake amount.
+1. Return the total STRK stake amount.
 
 ### get_current_total_staking_power
 ```rust
@@ -1332,6 +1337,54 @@ Any address can execute.
 #### logic <!-- omit from toc -->
 1. Convert versioned_internal_staker_info to newer version.
 2. Initialize the staker's balance trace.
+
+### add_token
+```rust
+fn add_token(ref self: ContractState, token_address: ContractAddress)
+```
+#### description <!-- omit from toc -->
+Add a new token to the staking contract.
+#### emits <!-- omit from toc -->
+#### errors <!-- omit from toc -->
+1. [ONLY\_SECURITY\_ADMIN](#only_security_admin)
+2. [INVALID\_TOKEN\_ADDRESS](#invalid_token_address)
+3. [TOKEN\_ALREADY\_EXISTS](#token_already_exists)
+#### pre-condition <!-- omit from toc -->
+#### access control <!-- omit from toc -->
+Only security admin.
+#### logic <!-- omit from toc -->
+
+### enable_token
+```rust
+fn enable_token(ref self: ContractState, token_address: ContractAddress)
+```
+#### description <!-- omit from toc -->
+Enable a token for getting rewards.
+#### emits <!-- omit from toc -->
+#### errors <!-- omit from toc -->
+1. [ONLY\_SECURITY\_ADMIN](#only_security_admin)
+2. [TOKEN\_NOT\_EXISTS](#token_not_exists)
+3. [TOKEN\_ALREADY\_ENABLED](#token_already_enabled)
+#### pre-condition <!-- omit from toc -->
+#### access control <!-- omit from toc -->
+Only security admin.
+#### logic <!-- omit from toc -->
+
+### disable_token
+```rust
+fn disable_token(ref self: ContractState, token_address: ContractAddress)
+```
+#### description <!-- omit from toc -->
+Disable a token for getting rewards.
+#### emits <!-- omit from toc -->
+#### errors <!-- omit from toc -->
+1. [ONLY\_SECURITY\_AGENT](#only_security_agent)
+2. [TOKEN\_NOT\_EXISTS](#token_not_exists)
+3. [TOKEN\_ALREADY\_DISABLED](#token_already_disabled)
+#### pre-condition <!-- omit from toc -->
+#### access control <!-- omit from toc -->
+Only security agent.
+#### logic <!-- omit from toc -->
 
 ## Events
 ### Stake Balance Changed
@@ -2347,6 +2400,21 @@ Only token admin.
 
 ### INTERNAL_STAKER_INFO_ALREADY_UPDATED
 "Internal Staker Info is already up-to-date"
+
+### TOKEN_NOT_EXISTS
+"Token does not exist"
+
+### TOKEN_ALREADY_ENABLED
+"Token is already enabled"
+
+### TOKEN_ALREADY_DISABLED
+"Token is already disabled"
+
+### INVALID_TOKEN_ADDRESS
+"Invalid token address"
+
+### TOKEN_ALREADY_EXISTS
+"Token already exists"
 
 # Structs
 ### StakerPoolInfo

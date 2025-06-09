@@ -23,6 +23,7 @@ pub mod Attestation {
     use starkware_utils::components::replaceability::ReplaceabilityComponent;
     use starkware_utils::components::replaceability::ReplaceabilityComponent::InternalReplaceabilityTrait;
     use starkware_utils::components::roles::RolesComponent;
+    use starkware_utils::errors::{Describable, ErrorDisplay};
     use starkware_utils::interfaces::identity::Identity;
     pub const CONTRACT_IDENTITY: felt252 = 'Attestation';
     pub const CONTRACT_VERSION: felt252 = '1.0.0';
@@ -243,18 +244,11 @@ pub mod Attestation {
             );
         }
 
-        /// **Note**: This function has two implementations.
-        /// In test environments, the syscall is not supported, returns zero or errors unexpectedly.
-        /// This allows the function to be tested without relying on the actual block hash
-        /// retrieval syscall.
-        #[cfg(not(target: 'test'))]
         fn get_target_block_hash(self: @ContractState, target_attestation_block: u64) -> felt252 {
-            get_block_hash_syscall(target_attestation_block).unwrap()
-        }
-
-        #[cfg(target: 'test')]
-        fn get_target_block_hash(self: @ContractState, target_attestation_block: u64) -> felt252 {
-            Zero::zero()
+            match get_block_hash_syscall(block_number: target_attestation_block) {
+                Ok(x) => x,
+                Err(_) => panic!("{}", Error::BLOCK_HASH_UNWRAP_FAILED.describe()),
+            }
         }
     }
 }

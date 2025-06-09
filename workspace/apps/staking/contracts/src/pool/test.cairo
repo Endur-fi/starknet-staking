@@ -58,12 +58,14 @@ use starkware_utils_testing::test_utils::{
     set_account_as_upgrade_governor,
 };
 use test_utils::{
-    StakingInitConfig, advance_block_into_attestation_window, advance_epoch_global, approve,
+    StakingInitConfig, add_to_delegation_pool_with_pool_member,
+    advance_block_into_attestation_window, advance_epoch_global, approve, calculate_pool_rewards,
     calculate_staker_own_rewards_including_commission, calculate_staker_total_rewards,
-    claim_rewards_for_pool_member, constants, declare_pool_contract, declare_pool_eic_contract,
-    deploy_mock_erc20_contract, deploy_staking_contract,
-    enter_delegation_pool_for_testing_using_dispatcher, fund, general_contract_system_deployment,
-    initialize_pool_state, load_from_simple_map, stake_with_pool_enabled,
+    cheat_target_attestation_block_hash, claim_rewards_for_pool_member, constants,
+    declare_pool_contract, declare_pool_eic_contract, deploy_mock_erc20_contract,
+    deploy_staking_contract, enter_delegation_pool_for_testing_using_dispatcher, fund,
+    general_contract_system_deployment, initialize_pool_state, load_from_simple_map,
+    stake_with_pool_enabled, update_rewards_from_staking_contract_for_testing,
 };
 
 #[test]
@@ -562,6 +564,98 @@ fn test_claim_rewards_no_rewards() {
 }
 
 #[test]
+fn test_claim_rewards_with_balance_changes() {
+    let mut cfg: StakingInitConfig = Default::default();
+    general_contract_system_deployment(ref :cfg);
+    let token_address = cfg.staking_contract_info.token_address;
+    let token_dispatcher = IERC20Dispatcher { contract_address: token_address };
+    let staking_contract = cfg.test_info.staking_contract;
+    let minting_curve_contract = cfg.reward_supplier.minting_curve_contract;
+    let staker_address = cfg.test_info.staker_address;
+
+    let pool_contract = stake_with_pool_enabled(:cfg, :token_address, :staking_contract);
+    let pool_dispatcher = IPoolDispatcher { contract_address: pool_contract };
+    enter_delegation_pool_for_testing_using_dispatcher(:pool_contract, :cfg, :token_address);
+    let pool_member = cfg.test_info.pool_member_address;
+    let delegate_amount = cfg.pool_member_info._deprecated_amount;
+
+    advance_epoch_global();
+
+    // Pool update rewards.
+    let mut pool_balance = delegate_amount;
+    let pool_rewards_for_epoch = calculate_pool_rewards(
+        :staker_address, :staking_contract, :minting_curve_contract,
+    );
+    update_rewards_from_staking_contract_for_testing(
+        :cfg, :pool_contract, rewards: pool_rewards_for_epoch, :pool_balance,
+    );
+
+    // Balance changes at current epoch.
+    add_to_delegation_pool_with_pool_member(
+        :pool_contract, :pool_member, amount: delegate_amount, :token_address,
+    );
+    advance_epoch_global();
+    pool_balance += delegate_amount;
+    let pool_member_info = pool_dispatcher.pool_member_info_v1(:pool_member);
+    let rewards = claim_rewards_for_pool_member(:pool_contract, :pool_member);
+    assert!(pool_member_info.unclaimed_rewards == rewards);
+    assert!(rewards == pool_rewards_for_epoch);
+    assert!(
+        token_dispatcher
+            .balance_of(cfg.pool_member_info.reward_address) == pool_rewards_for_epoch
+            .into(),
+    );
+
+    // Balance changes after current epoch and there is no balance change at current epoch.
+    advance_epoch_global();
+    let pool_rewards_for_epoch = calculate_pool_rewards(
+        :staker_address, :staking_contract, :minting_curve_contract,
+    );
+    update_rewards_from_staking_contract_for_testing(
+        :cfg, :pool_contract, rewards: pool_rewards_for_epoch, :pool_balance,
+    );
+    advance_epoch_global();
+    add_to_delegation_pool_with_pool_member(
+        :pool_contract, :pool_member, amount: delegate_amount, :token_address,
+    );
+    let balance_before_claim = token_dispatcher.balance_of(cfg.pool_member_info.reward_address);
+    let pool_member_info = pool_dispatcher.pool_member_info_v1(:pool_member);
+    let rewards = claim_rewards_for_pool_member(:pool_contract, :pool_member);
+    assert!(pool_member_info.unclaimed_rewards == rewards);
+    assert!(rewards == pool_rewards_for_epoch);
+    assert!(
+        token_dispatcher.balance_of(cfg.pool_member_info.reward_address) == balance_before_claim
+            + pool_rewards_for_epoch.into(),
+    );
+
+    // Balance changes at current epoch & after current epoch.
+    advance_epoch_global();
+    pool_balance += delegate_amount;
+    let pool_rewards_for_epoch = calculate_pool_rewards(
+        :staker_address, :staking_contract, :minting_curve_contract,
+    );
+    update_rewards_from_staking_contract_for_testing(
+        :cfg, :pool_contract, rewards: pool_rewards_for_epoch, :pool_balance,
+    );
+    add_to_delegation_pool_with_pool_member(
+        :pool_contract, :pool_member, amount: delegate_amount, :token_address,
+    );
+    advance_epoch_global();
+    add_to_delegation_pool_with_pool_member(
+        :pool_contract, :pool_member, amount: delegate_amount, :token_address,
+    );
+    let balance_before_claim = token_dispatcher.balance_of(cfg.pool_member_info.reward_address);
+    let pool_member_info = pool_dispatcher.pool_member_info_v1(:pool_member);
+    let rewards = claim_rewards_for_pool_member(:pool_contract, :pool_member);
+    assert!(pool_member_info.unclaimed_rewards == rewards);
+    assert!(rewards == pool_rewards_for_epoch);
+    assert!(
+        token_dispatcher.balance_of(cfg.pool_member_info.reward_address) == balance_before_claim
+            + pool_rewards_for_epoch.into(),
+    );
+}
+
+#[test]
 fn test_exit_delegation_pool_intent() {
     let mut cfg: StakingInitConfig = Default::default();
     general_contract_system_deployment(ref :cfg);
@@ -706,10 +800,12 @@ fn test_exit_delegation_pool_action() {
     advance_block_into_attestation_window(
         :cfg, stake: cfg.test_info.stake_amount + delegate_amount,
     );
+    let block_hash = Zero::zero();
+    cheat_target_attestation_block_hash(:cfg, :block_hash);
     cheat_caller_address_once(
         contract_address: attestation_contract, caller_address: operational_address,
     );
-    attestation_dispatcher.attest(block_hash: Zero::zero());
+    attestation_dispatcher.attest(:block_hash);
     advance_epoch_global();
     let unclaimed_rewards_member = pool_dispatcher
         .pool_member_info_v1(:pool_member)
@@ -1396,13 +1492,6 @@ fn test_pool_eic_with_wrong_number_of_data_elements() {
     let token_address = cfg.staking_contract_info.token_address;
     let staking_contract = cfg.test_info.staking_contract;
     let pool_contract = stake_with_pool_enabled(:cfg, :token_address, :staking_contract);
-    let upgrade_governor = cfg.test_info.pool_contract_admin;
-
-    set_account_as_upgrade_governor(
-        contract: pool_contract,
-        account: upgrade_governor,
-        governance_admin: cfg.test_info.pool_contract_admin,
-    );
 
     // Upgrade.
     let eic_data = EICData { eic_hash: declare_pool_eic_contract(), eic_init_data: [].span() };
@@ -1414,7 +1503,7 @@ fn test_pool_eic_with_wrong_number_of_data_elements() {
         block_timestamp: Time::now().add(delta: Time::days(count: 1)).into(),
     );
     upgrade_implementation(
-        contract_address: pool_contract, :implementation_data, :upgrade_governor,
+        contract_address: pool_contract, :implementation_data, upgrade_governor: staking_contract,
     );
 }
 
@@ -1426,13 +1515,6 @@ fn test_pool_eic_zero_class_hash() {
     let token_address = cfg.staking_contract_info.token_address;
     let staking_contract = cfg.test_info.staking_contract;
     let pool_contract = stake_with_pool_enabled(:cfg, :token_address, :staking_contract);
-    let upgrade_governor = cfg.test_info.pool_contract_admin;
-
-    set_account_as_upgrade_governor(
-        contract: pool_contract,
-        account: upgrade_governor,
-        governance_admin: cfg.test_info.pool_contract_admin,
-    );
 
     // Upgrade.
     let eic_data = EICData {
@@ -1446,7 +1528,7 @@ fn test_pool_eic_zero_class_hash() {
         block_timestamp: Time::now().add(delta: Time::days(count: 1)).into(),
     );
     upgrade_implementation(
-        contract_address: pool_contract, :implementation_data, :upgrade_governor,
+        contract_address: pool_contract, :implementation_data, upgrade_governor: staking_contract,
     );
 }
 
